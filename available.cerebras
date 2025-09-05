@@ -1,4 +1,7 @@
 
+# This script pulls the available public modles, then says hello to each one.
+# this will quickly reveal if you have ran out of tokens on one of the models.
+
 # Cerebras gives pretty generous limits, but you can run out. 
 # Thier limits are per model per day, so you can switch to a different model
 # if you hit a max.
