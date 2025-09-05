@@ -46,6 +46,10 @@ dotnet run
 # Use different model and endpoint
 dotnet run --model gpt-4o --endpoint https://api.openai.com/v1 --key your-key
 
+# Sign up for free tokens from cerebras at (use the link for extra referal tokens) https://cloud.cerebras.ai?referral_code=y3wvtcmy
+# to use Cerebras hosted Qwen3-480B (Coder)
+dotnet run --model qwen-3-coder-480b --endpoint https://api.cerebras.ai/v1 --key $CEREBRAS_API_KEY
+
 # Get help
 dotnet run --help
 ```
@@ -63,14 +67,6 @@ dotnet run --help
    conversation.
 7. **Analytics** – Session reports and conversation history are automatically saved for analysis.
 
-## Extending the project
-
-* **Add more tools** – Implement another MCP server (e.g., a database client) and add it to the list of tools.
-* **Custom pricing** – Update `ModelPricing.cs` with your model's pricing information.
-* **Persist conversation** – Conversations are automatically saved to `.bb-history/` as JSON.
-* **Custom UI** – Replace the console REPL with a minimal web UI using ASP.NET Core.
-* **Budget controls** – Add spending limits and alerts based on the cost tracking.
-
 ## Features
 
 - **Console Logging**: Simple console output for debugging and monitoring
@@ -82,4 +78,4 @@ dotnet run --help
 This example is provided under the MIT License. Feel free to copy, modify, and redistribute.
 
 ---
-*Happy hacking! 🫐*
+*Have Fun! 🫐*
