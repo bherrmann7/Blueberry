@@ -1,15 +1,13 @@
 # Blue Berry (bb)
 
-This program is influenced by the MCP sdk example, csharp-sdk/samples/ChatWithTools/ChatWithTools.csproj
+Blue Berry is derived from an example in the Microsoft MCP Sdk.
 
-A simple .NET console application that demonstrates how to combine a large language model (LLM) with **tool-calling**
+Blue Berry is a .NET console application that demonstrates how to combine a large language model (LLM) with **tool-calling**
 capabilities using the **Model Context Protocol (MCP)**. The program:
 
-* Connects to an OpenAI (or Cerebras) chat model.
-* Starts two external MCP services:
-    * **BashServer** – execute shell commands.
-    * **FileServer** – read/write/list files.
-* Exposes the tools offered by those services to the LLM via function-calling.
+* Connects to any OpenAI compatible chat model (ie. Cerebras) 
+* Connects to configured mcp servers
+* Exposes the tools offered by the mcp servers to the LLM via function-calling.
 * **📊 Tracks token usage and costs** in real-time with comprehensive analytics.
 * **🔍 Monitors context utilization** to prevent hitting model limits.
 * Enters an interactive REPL where you can ask the model to perform actions, and the results are displayed
@@ -34,20 +32,13 @@ dotnet build
 
 ## Running the application
 
-### Interactive Mode (REPL)
+### Starting the REPL
 
 ```bash
 # Ensure the required environment variables are set
 export OPENAI_API_KEY=your-openai-key   # or CEREBRAS_API_KEY
 
-# Run the console app
-dotnet run
-```
-
-### Command Line Options
-
-```bash
-# Use different model and endpoint
+# Provide model and endpoint (the default is ollama)
 dotnet run --model gpt-4o --endpoint https://api.openai.com/v1 --key your-key
 
 # Sign up for free tokens from cerebras at (use the link for extra referal tokens) https://cloud.cerebras.ai?referral_code=y3wvtcmy
