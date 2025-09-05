@@ -13,24 +13,10 @@ namespace BluelBerry;
 /// <summary>Factory for creating configured chat clients with telemetry and rate limiting.</summary>
 public class ChatClientFactory
 {
-    /// <summary>Creates a chat client with telemetry, rate limiting, and function invocation support.</summary>
+    /// <summary>Creates a chat client with logging, rate limiting, and function invocation support.</summary>
     public static (IChatClient chatClient, IChatClient samplingClient, ILoggerFactory loggerFactory, TokenTracker tokenTracker) Create(AppOptions options)
     {
-        // Enhanced telemetry setup
-        var tracerProvider = Sdk.CreateTracerProviderBuilder()
-            .AddSource("*")
-            .AddSource("BluelBerry.*")
-            .AddOtlpExporter()
-            .Build();
-
-        var metricsProvider = Sdk.CreateMeterProviderBuilder()
-            .AddMeter("*")
-            .AddMeter("BluelBerry.*")
-            .AddOtlpExporter()
-            .Build();
-
-        var loggerFactory = LoggerFactory.Create(builder =>
-            builder.AddOpenTelemetry(opt => opt.AddOtlpExporter()).AddConsole());
+        var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 
         // Initialize token tracker
         var tokenTracker = new TokenTracker();
@@ -46,11 +32,8 @@ public class ChatClientFactory
                 Transport = new HttpClientPipelineTransport(new HttpClient(rateLimitHandler)) 
             }).GetChatClient(options.model);
 
-        // Create sampling client with telemetry
-        var samplingClient = openAIClient.AsIChatClient()
-            .AsBuilder()
-            .UseOpenTelemetry(loggerFactory, configure: o => o.EnableSensitiveData = true)
-            .Build();
+        // Create sampling client
+        var samplingClient = openAIClient.AsIChatClient();
 
         // Create main chat client with function invocation
         var chatClient = openAIClient.AsIChatClient()
