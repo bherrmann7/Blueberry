@@ -12,7 +12,6 @@ capabilities using the **Model Context Protocol (MCP)**. The program:
 * Exposes the tools offered by those services to the LLM via function-calling.
 * **📊 Tracks token usage and costs** in real-time with comprehensive analytics.
 * **🔍 Monitors context utilization** to prevent hitting model limits.
-* **📈 Exports telemetry** for production monitoring via OpenTelemetry.
 * Enters an interactive REPL where you can ask the model to perform actions, and the results are displayed
   automatically.
 
@@ -68,21 +67,15 @@ dotnet run --help
 
 * **Add more tools** – Implement another MCP server (e.g., a database client) and add it to the list of tools.
 * **Custom pricing** – Update `ModelPricing.cs` with your model's pricing information.
-* **Telemetry backend** – Configure OpenTelemetry exporters (OTLP, Jaeger, etc.) to collect traces and metrics.
 * **Persist conversation** – Conversations are automatically saved to `.bb-history/` as JSON.
 * **Custom UI** – Replace the console REPL with a minimal web UI using ASP.NET Core.
 * **Budget controls** – Add spending limits and alerts based on the cost tracking.
 
-## Production Deployment
+## Features
 
-The application includes comprehensive telemetry and monitoring capabilities:
-
-- **Metrics**: Token usage, costs, context utilization, request counts
-- **Tracing**: HTTP client instrumentation, custom spans for LLM operations
-- **Logging**: Structured logs with OpenTelemetry integration
+- **Console Logging**: Simple console output for debugging and monitoring
 - **Cost Monitoring**: Real-time spending tracking with model-specific pricing
-
-Configure your telemetry backend (Jaeger, Prometheus, Application Insights) to receive the exported data.
+- **Rate Limiting**: Built-in handling for API rate limits with retry logic
 
 ## License
 
