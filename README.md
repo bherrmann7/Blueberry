@@ -15,11 +15,15 @@ capabilities using the **Model Context Protocol (MCP)**. The program:
 * Enters an interactive REPL where you can ask the model to perform actions, and the results are displayed
   automatically.
 
-## How to create an AI Agent
+## How to Create an AI Agent
 
-Start with https://github.com/modelcontextprotocol/csharp-sdk/blob/main/samples/ChatWithTools/Program.cs which has everything you need to get started.
-It ties OpenAI Chat APIs to Microsofts MCP Library.   This enables a chat with tool support.   After adding a shell/bash tool - you have everything
-you nedd to haved an agent which can help you improve itself.
+Blue Berry started with sample code from https://github.com/modelcontextprotocol/csharp-sdk/blob/main/samples/ChatWithTools/Program.cs
+
+The Microsoft MCP Library's examples show how to connect an LLM to MCP servers. This enables chat with tool support. With tools, an LLM can manipulate files and
+execute programs.
+
+Microsoft's MCP SDK example connects OpenAI Chat APIs to the Microsoft MCP Library. After adding shell/bash tools, you have everything you need to build an agent
+that can help improve itself.
 
 ## Building the project
 
