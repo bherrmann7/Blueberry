@@ -1,4 +1,8 @@
 
+# Cerebras gives pretty generous limits, but you can run out. 
+# Thier limits are per model per day, so you can switch to a different model
+# if you hit a max.
+
 ## grab the exposed models
 
 MODELS=$(curl -s -X GET "https://api.cerebras.ai/v1/models" \
