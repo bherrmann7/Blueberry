@@ -41,7 +41,7 @@ export OPENAI_API_KEY=your-openai-key   # or CEREBRAS_API_KEY
 # Provide model and endpoint (the default is ollama)
 dotnet run --model gpt-4o --endpoint https://api.openai.com/v1 --key your-key
 
-# Sign up for free tokens from cerebras at (use the link for extra referal tokens) https://cloud.cerebras.ai?referral_code=y3wvtcmy
+# Sign up for free tokens from cerebras at (use the link for extra referral tokens) https://cloud.cerebras.ai?referral_code=y3wvtcmy
 # to use Cerebras hosted Qwen3-480B (Coder)
 dotnet run --model qwen-3-coder-480b --endpoint https://api.cerebras.ai/v1 --key $CEREBRAS_API_KEY
 
