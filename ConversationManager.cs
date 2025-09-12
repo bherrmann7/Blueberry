@@ -39,6 +39,7 @@ public class ConversationManager
                 msgs[0] = new ChatMessage(ChatRole.System, systemPrompt);
 
             Console.WriteLine($"🔄 Loaded conversation snapshot from '{Path.GetFileName(latest)}' ({msgs.Count} messages).");
+            DisplayConversation(msgs);
             return msgs;
         }
         catch (Exception ex)
@@ -85,6 +86,66 @@ public class ConversationManager
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         File.WriteAllText(Path.Combine(HistoryFolder, $"bb-quota-exceeded-{timestamp}.json"), json);
         Environment.Exit(1);
+    }
+
+    /// <summary>Displays the loaded conversation in a readable format.</summary>
+    private static void DisplayConversation(List<ChatMessage> messages)
+    {
+        Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
+        Console.WriteLine("📜 LOADED CONVERSATION HISTORY");
+        Console.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
+        Console.ResetColor();
+
+        for (int i = 0; i < messages.Count; i++)
+        {
+            var message = messages[i];
+            
+            // Skip system message for display (first message)
+            if (i == 0 && message.Role == ChatRole.System)
+                continue;
+
+            Console.WriteLine();
+            
+            // Display role with appropriate color
+            if (message.Role == ChatRole.User)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("👤 USER:");
+            }
+            else if (message.Role == ChatRole.Assistant)
+            {
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine("🤖 ASSISTANT:");
+            }
+            else if (message.Role == ChatRole.Tool)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("🔧 TOOL:");
+            }
+            Console.ResetColor();
+
+            // Display message content with proper formatting
+            var content = message.Text ?? "";
+            if (!string.IsNullOrEmpty(content))
+            {
+                // Add indentation for readability
+                var lines = content.Split('\n');
+                foreach (var line in lines)
+                {
+                    Console.WriteLine($"  {line}");
+                }
+            }
+        }
+
+        Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
+        Console.WriteLine("📝 END OF LOADED CONVERSATION");
+        Console.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
+        Console.ResetColor();
+        Console.WriteLine();
     }
 
     private static List<ChatMessage> CreateNewConversation(string systemPrompt) => 
