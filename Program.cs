@@ -9,7 +9,7 @@ internal static class Utils
             return string.Empty;
 
         // Replace sequences of escaped quotes with a single quote
-        return System.Text.RegularExpressions.Regex.Replace(input, @"(\\"")+", "\"");
+        return System.Text.RegularExpressions.Regex.Replace(input, @"(\\"")+", @"\""");
     }
 }
 
@@ -28,6 +28,10 @@ internal class Program
 {
     private static async Task<int> Main(string[] args)
     {
+        // Set console encoding for proper Unicode display (especially important on Windows)
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        Console.InputEncoding = System.Text.Encoding.UTF8;
+        
         Console.WriteLine("Welcome to 🫐 Blue Berry 🫐");
 
         if (args.Contains("--help"))

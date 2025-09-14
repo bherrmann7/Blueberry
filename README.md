@@ -1,76 +1,73 @@
 # Blue Berry (bb)
 
-Blue Berry is derived from an example in the Microsoft MCP Sdk.
+A .NET 9 console application that connects LLMs to local tools via the Model Context Protocol (MCP).
+Think of it as a bridge between your favorite LLM and your development environment.
 
-Blue Berry is a .NET console application that demonstrates how to combine a large language model (LLM) with **tool-calling**
-capabilities using the **Model Context Protocol (MCP)**. The program:
+## What it does
 
-* Connects to any OpenAI compatible chat model (ie. Cerebras) 
-* Connects to configured mcp servers
-* Exposes the tools offered by the mcp servers to the LLM via function-calling.
-* **📊 Tracks token usage and costs** in real-time with comprehensive analytics.
-* **🔍 Monitors context utilization** to prevent hitting model limits.
-* Enters an interactive REPL where you can ask the model to perform actions, and the results are displayed
-  automatically.
+- **Tool Integration**: Connects any OpenAI-compatible LLM to MCP servers (shell, file system, databases, etc.)
+- **Cost Tracking**: Real-time token usage and spending analytics
+- **Context Monitoring**: Prevents hitting model context limits
+- **Interactive REPL**: Chat with the LLM while it executes tools on your behalf
 
-## How to Create an AI Agent
-
-Blue Berry started with sample code from https://github.com/modelcontextprotocol/csharp-sdk/blob/main/samples/ChatWithTools/Program.cs
-
-The Microsoft MCP Library's examples show how to connect an LLM to MCP servers. This enables chat with tool support. With tools, an LLM can manipulate files and
-execute programs.
-
-Microsoft's MCP SDK example connects OpenAI Chat APIs to the Microsoft MCP Library. After adding shell/bash tools, you have everything you need to build an agent
-that can help improve itself.
-
-## Building the project
+## Quick Start
 
 ```bash
-# Restore NuGet packages and build
+# Build
 dotnet build
-```
 
-## Running the application
-
-### Starting the REPL
-
-```bash
-# Ensure the required environment variables are set
-export OPENAI_API_KEY=your-openai-key   # or CEREBRAS_API_KEY
-
-# Provide model and endpoint (the default is ollama)
-dotnet run --model gpt-4o --endpoint https://api.openai.com/v1 --key your-key
-
-# Sign up for free tokens from cerebras at (use the link for extra referral tokens) https://cloud.cerebras.ai?referral_code=y3wvtcmy
-# to use Cerebras hosted Qwen3-480B (Coder)
+# Run with Cerebras (free tier available)
 dotnet run --model qwen-3-coder-480b --endpoint https://api.cerebras.ai/v1 --key $CEREBRAS_API_KEY
 
-# Get help
-dotnet run --help
+# Or with OpenAI
+dotnet run --model gpt-4o --endpoint https://api.openai.com/v1 --key $OPENAI_API_KEY
 ```
 
-## How it works (high-level)
+## MCP Server Configuration
 
-1. **LLM client** – `OpenAIClient` (or Cerebras) provides the chat model.
-2. **Token tracking** – `TokenTracker` monitors usage, costs, and context utilization in real-time.
-3. **MCP clients** – `McpClientFactory.CreateAsync` starts the Bash and File servers via a *stdio* transport.
-4. **Tool aggregation** – `ListToolsAsync` gathers the available functions from both servers.
-5. **Function-calling** – The `IChatClient` is built with `UseFunctionInvocation()` so the LLM can request tool
-   execution.
-6. **REPL loop** – Reads user input, streams the LLM response, detects `FunctionCallContent` and
-   `FunctionResultContent`, prints nicely formatted JSON, tracks costs, and feeds the updates back into the
-   conversation.
-7. **Analytics** – Session reports and conversation history are automatically saved for analysis.
+Create a `mcp.json` file to specify which tools the LLM can access:
 
-## Features
+**Location:**
+- macOS/Linux: `~/.bb/mcp.json` 
+- Windows: `C:\Users\{username}\.bb\mcp.json`
 
-- **Console Logging**: Simple console output for debugging and monitoring
-- **Cost Monitoring**: Real-time spending tracking with model-specific pricing
-- **Rate Limiting**: Built-in handling for API rate limits with retry logic
+**Example:**
+```json
+{
+  "mcp_servers": [
+    {
+      "name": "Shell",
+      "command": "/path/to/shell-mcp-server",
+      "arguments": []
+    },
+    {
+      "name": "Files", 
+      "command": "/path/to/file-mcp-server",
+      "arguments": []
+    }
+  ]
+}
+```
 
-## License
+## Architecture
 
-This example is provided under the MIT License. Feel free to copy, modify, and redistribute.
+1. **LLM Client** → Connects to OpenAI/Cerebras/etc
+2. **MCP Manager** → Launches and manages configured tool servers  
+3. **Function Calling** → LLM requests tool execution via structured calls
+4. **REPL Loop** → Interactive chat with live tool integration
+5. **Analytics** → Token tracking and conversation persistence
+
+## Use Cases
+
+- **Code Assistant**: LLM that can read/write files, run builds, execute tests
+- **System Admin**: Shell access for deployment, monitoring, troubleshooting
+- **Data Analysis**: Database queries, file processing, report generation
+- **Development Workflow**: Git operations, package management, environment setup
+
+## Free LLM Access
+
+Sign up at [Cerebras](https://cloud.cerebras.ai?referral_code=y3wvtcmy) for free tokens to get started.
 
 ---
-*Have Fun! 🫐*
+
+Based on the [Microsoft MCP SDK](https://github.com/modelcontextprotocol/csharp-sdk) • MIT License • *Have Fun! 🫐*
