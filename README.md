@@ -1,67 +1,90 @@
 # Blue Berry (bb)
 
-A .NET 9 console application that connects LLMs to local tools via the Model Context Protocol (MCP). Think of it as a bridge between your favorite LLM and your development environment.
+A .NET 9 console application that connects LLMs to local tools via the Model Context Protocol (MCP). 
+Think of it as a bridge between your favorite LLM and your development environment.
 
-## What it does
+---
 
-- **Tool Integration**: Connects any OpenAI-compatible LLM to MCP servers (shell, file system, databases, etc.)
-- **Cost Tracking**: Real-time token usage and spending analytics
-- **Context Monitoring**: Prevents hitting model context limits
-- **Interactive REPL**: Chat with the LLM while it executes tools on your behalf
+## 🚀 Just Want to Try It? (Non-Developers)
 
-## Why Create Another Agent?
+**Download and double-click to run:**
 
-The AI coding assistant space is crowded with hundreds of projects, so why build BlueBerry?
+[![Download for Windows](https://img.shields.io/badge/Windows-Download%20%26%20Run-blue?style=for-the-badge&logo=windows)](https://github.com/bherrmann7/BlueBerry/releases/latest/download/blueberry-windows-x64.zip)
+[![Download for macOS Intel](https://img.shields.io/badge/macOS-Intel-black?style=for-the-badge&logo=apple)](https://github.com/bherrmann7/BlueBerry/releases/latest/download/blueberry-macos-x64.zip)
+[![Download for macOS Apple Silicon](https://img.shields.io/badge/macOS-Apple%20Silicon-black?style=for-the-badge&logo=apple)](https://github.com/bherrmann7/BlueBerry/releases/latest/download/blueberry-macos-arm64.zip)
+[![Download for Linux](https://img.shields.io/badge/Linux-x64-orange?style=for-the-badge&logo=linux)](https://github.com/bherrmann7/BlueBerry/releases/latest/download/blueberry-linux-x64.zip)
 
-**Standards-Based Approach**: Built on Microsoft's Model Context Protocol (MCP) instead of custom integrations. This means your tools can work with other MCP clients, and other people's MCP servers work with BlueBerry. Less vendor lock-in, more interoperability.
+### Quick Setup (5 minutes):
+1. **Download** the file for your computer above
+2. **Unzip** the downloaded file 
+3. **Get a free API key** from [Cerebras](https://cloud.cerebras.ai?referral_code=y3wvtcmy) (they give you free tokens!)
+4. **Run BlueBerry:**
+   - **Windows**: Double-click `bb.exe`, or open Command Prompt and run:
+     ```
+     bb.exe --model qwen-3-coder-480b --endpoint https://api.cerebras.ai/v1 --key YOUR_API_KEY_HERE
+     ```
+   - **Mac/Linux**: Open Terminal in the folder and run:
+     ```bash
+     ./bb --model qwen-3-coder-480b --endpoint https://api.cerebras.ai/v1 --key YOUR_API_KEY_HERE
+     ```
 
-**Cross-Platform .NET**: Most agents are Python-heavy and Linux-focused. BlueBerry runs natively on Windows, macOS, and Linux with proper Unicode support and platform-specific optimizations.
+You should see a chat prompt where you can talk to the AI!
 
-**Composable Architecture**: Rather than a monolithic framework trying to do everything, BlueBerry focuses on the core agent loop while delegating specific capabilities to specialized MCP servers. Want file operations? Add a file server. Need database access? Add a database server.
+---
 
-**Learning by Building**: Understanding how LLM function calling, token management, and tool integration actually work under the hood - not just consuming a black-box API.
+## 🛠️ Developer Path (Want to Hack on It?)
 
-## Quick Start
+**Clone, build, and extend:**
 
 ```bash
-# Build
+git clone https://github.com/bherrmann7/BlueBerry.git
+cd BlueBerry
 dotnet build
-
-# Configure your LLM API key
-export CEREBRAS_API_KEY=your-key  # or OPENAI_API_KEY
-
-# Run with Cerebras (free tier available)
-dotnet run --model qwen-3-coder-480b --endpoint https://api.cerebras.ai/v1 --key $CEREBRAS_API_KEY
-
-# Or with OpenAI
-dotnet run --model gpt-4o --endpoint https://api.openai.com/v1 --key $OPENAI_API_KEY
+dotnet run -- --model qwen-3-coder-480b --endpoint https://api.cerebras.ai/v1 --key $CEREBRAS_API_KEY
 ```
 
-## MCP Server Configuration
+### Project Structure:
+- `Program.cs` - Main entry point and REPL loop
+- `ChatSession.cs` - Manages LLM conversations and function calling
+- `McpClientManager.cs` - Handles MCP server connections
+- `TokenTracker.cs` - Cost tracking and analytics
+- `ConversationManager.cs` - Chat history and persistence
 
-Create a `mcp.json` file to specify which tools the LLM can access:
+### Adding MCP Tools:
+Create `~/.bb/mcp.json` (or `C:\Users\{you}\.bb\mcp.json` on Windows):
 
-**Location:**
-- macOS/Linux: `~/.bb/mcp.json` 
-- Windows: `C:\Users\{username}\.bb\mcp.json`
-
-**Example:**
 ```json
 {
   "mcp_servers": [
     {
       "name": "Shell",
-      "command": "/path/to/shell-mcp-server",
-      "arguments": []
-    },
-    {
-      "name": "Files", 
-      "command": "/path/to/file-mcp-server",
+      "command": "/path/to/your/mcp-server",
       "arguments": []
     }
   ]
 }
 ```
+
+---
+
+## What BlueBerry Does
+
+- **Tool Integration**: Connects any OpenAI-compatible LLM to MCP servers (shell, file system, databases, etc.)
+- **Cost Tracking**: Real-time token usage and spending analytics  
+- **Context Monitoring**: Prevents hitting model context limits
+- **Interactive REPL**: Chat with the LLM while it executes tools on your behalf
+
+## Why Another Agent?
+
+The AI coding assistant space is crowded, so why BlueBerry?
+
+**Standards-Based**: Built on the Model Context Protocol (MCP) instead of custom integrations. Your tools work with other MCP clients, and other people's MCP servers work with BlueBerry. Less vendor lock-in, more interoperability.
+
+**Cross-Platform .NET**: Most agents are Python-heavy and Linux-focused. BlueBerry runs natively on Windows, macOS, and Linux with proper Unicode support.
+
+**Composable Architecture**: Rather than a monolithic framework, BlueBerry focuses on the core agent loop while delegating capabilities to specialized MCP servers. Want file operations? Add a file server. Need database access? Add a database server.
+
+**Learning by Building**: Understanding how LLM function calling, token management, and tool integration work under the hood - not just consuming a black-box API.
 
 ## Architecture
 
@@ -74,7 +97,7 @@ Create a `mcp.json` file to specify which tools the LLM can access:
 ## Use Cases
 
 - **Code Assistant**: LLM that can read/write files, run builds, execute tests
-- **System Admin**: Shell access for deployment, monitoring, troubleshooting
+- **System Admin**: Shell access for deployment, monitoring, troubleshooting  
 - **Data Analysis**: Database queries, file processing, report generation
 - **Development Workflow**: Git operations, package management, environment setup
 
@@ -82,6 +105,8 @@ Create a `mcp.json` file to specify which tools the LLM can access:
 
 Sign up at [Cerebras](https://cloud.cerebras.ai?referral_code=y3wvtcmy) for free tokens to get started.
 
+Or view [all releases](https://github.com/bherrmann7/BlueBerry/releases) for previous versions.
+
 ---
 
-Based on the [Microsoft MCP SDK](https://github.com/modelcontextprotocol/csharp-sdk) • MIT License • *Have Fun! 🫐*
+Based on the [Microsoft MCP SDK]() • MIT License • *Have Fun! 🫐*

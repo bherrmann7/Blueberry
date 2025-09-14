@@ -34,7 +34,7 @@ internal class Program
         
         Console.WriteLine("Welcome to 🫐 Blue Berry 🫐");
 
-        if (args.Contains("--help"))
+        if (args.Contains("--help")||args.Contains("-h")||args.Contains("-?"))
         {
             Console.WriteLine(AppOptionsParser.Usage<AppOptions>("bb"));
             return 0;

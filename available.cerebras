@@ -1,9 +1,10 @@
 
-# This script pulls the available public modles, then says hello to each one.
+# This script pulls the available public models, then says hello to each one.
 # this will quickly reveal if you have ran out of tokens on one of the models.
+# (I have done most of my testing with the free tier)
 
 # Cerebras gives pretty generous limits, but you can run out. 
-# Thier limits are per model per day, so you can switch to a different model
+# Their limits are per model per day, so you can switch to a different model
 # if you hit a max.
 
 ## grab the exposed models
