@@ -1,0 +1,76 @@
+name: Build BlueBerry Multi-Platform
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+      
+    # Create platform-specific builds for BlueBerry
+    - name: Publish Windows x64 (Self-contained)
+      if: matrix.os == 'windows-latest'
+      run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/blueberry-win-x64
+      
+    - name: Publish macOS x64 (Self-contained)
+      if: matrix.os == 'macos-latest'
+      run: dotnet publish -c Release -r osx-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/blueberry-osx-x64
+      
+    - name: Publish macOS ARM64 (Self-contained)
+      if: matrix.os == 'macos-latest'
+      run: dotnet publish -c Release -r osx-arm64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/blueberry-osx-arm64
+      
+    - name: Publish Linux x64 (Self-contained)
+      if: matrix.os == 'ubuntu-latest'
+      run: dotnet publish -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/blueberry-linux-x64
+      
+    # Upload artifacts for easy download
+    - name: Upload Windows x64 build
+      if: matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: blueberry-windows-x64
+        path: ./publish/blueberry-win-x64/
+        
+    - name: Upload macOS x64 build
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: blueberry-macos-x64
+        path: ./publish/blueberry-osx-x64/
+        
+    - name: Upload macOS ARM64 build
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: blueberry-macos-arm64
+        path: ./publish/blueberry-osx-arm64/
+        
+    - name: Upload Linux x64 build
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: blueberry-linux-x64
+        path: ./publish/blueberry-linux-x64/
