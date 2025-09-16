@@ -139,6 +139,7 @@ public static class EnhancedInputHandler
         Console.WriteLine("    Ctrl+D or '.' on empty line - Submit input");
         Console.WriteLine("  Commands:");
         Console.WriteLine("    /clear    - Clear conversation history");
+        Console.WriteLine("    /resume   - Load last saved conversation");
         Console.WriteLine("    /help     - Show this help");
         Console.WriteLine("    summary   - Show session summary");
         Console.WriteLine("    !!        - Repeat last prompt");
@@ -151,7 +152,7 @@ public class AutoCompletionHandler : IAutoCompleteHandler
 {
     private static readonly string[] Commands =
     {
-        "/clear", "/help", "summary", "exit", "quit", "!!"
+        "/clear", "/resume", "/help", "summary", "exit", "quit", "!!"
     };
 
     public char[] Separators { get; set; } = { ' ', '.', '/' };

@@ -6,18 +6,29 @@ using Microsoft.Extensions.Logging;
 public class RateLimitLoggingHandler : DelegatingHandler
 {
     private readonly ILogger<RateLimitLoggingHandler> _logger;
+    private readonly bool _enableHttpLogging;
+    private static readonly string HistoryFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".bb-history");
 
-    public RateLimitLoggingHandler(ILogger<RateLimitLoggingHandler> logger)
+    public RateLimitLoggingHandler(ILogger<RateLimitLoggingHandler> logger, bool enableHttpLogging = false)
         : base(new HttpClientHandler())
     {
         _logger = logger;
+        _enableHttpLogging = enableHttpLogging;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+        // Log request
+        await LogRequest(request, timestamp);
+
         var response = await base.SendAsync(request, cancellationToken);
+
+        // Log response
+        await LogResponse(response, timestamp);
 
         // Only log rate limit headers if they're interesting (low remaining)
         var rateLimitHeaders = response.Headers
@@ -136,5 +147,76 @@ public class RateLimitLoggingHandler : DelegatingHandler
         }
 
         return response;
+    }
+
+    private async Task LogRequest(HttpRequestMessage request, long timestamp)
+    {
+        try
+        {
+            EnsureHistoryDirectory();
+
+            var requestInfo = new
+            {
+                timestamp = DateTimeOffset.UtcNow.ToString("O"),
+                method = request.Method.ToString(),
+                url = request.RequestUri?.ToString(),
+                headers = request.Headers.ToDictionary(h => h.Key, h => string.Join(", ", h.Value)),
+                content = request.Content != null ? await request.Content.ReadAsStringAsync() : null
+            };
+
+            var json = JsonSerializer.Serialize(requestInfo, new JsonSerializerOptions { WriteIndented = true });
+            var filename = $"bb-req-{timestamp}.json";
+            var filepath = Path.Combine(HistoryFolder, filename);
+            await File.WriteAllTextAsync(filepath, json);
+            if (_enableHttpLogging)
+                Console.WriteLine($"📤 Logged request to {HistoryFolder}/{filename}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to log request {timestamp}: {ex.Message}");
+        }
+    }
+
+    private async Task LogResponse(HttpResponseMessage response, long timestamp)
+    {
+        try
+        {
+            EnsureHistoryDirectory();
+
+            var responseContent = response.Content != null ? await response.Content.ReadAsStringAsync() : null;
+
+            var responseInfo = new
+            {
+                timestamp = DateTimeOffset.UtcNow.ToString("O"),
+                statusCode = (int)response.StatusCode,
+                statusText = response.StatusCode.ToString(),
+                headers = response.Headers.ToDictionary(h => h.Key, h => string.Join(", ", h.Value)),
+                content = responseContent
+            };
+
+            var json = JsonSerializer.Serialize(responseInfo, new JsonSerializerOptions { WriteIndented = true });
+            var filename = $"bb-resp-{timestamp}.json";
+            var filepath = Path.Combine(HistoryFolder, filename);
+            await File.WriteAllTextAsync(filepath, json);
+            if (_enableHttpLogging)
+                Console.WriteLine($"📥 Logged response to {HistoryFolder}/{filename}");
+
+            // Recreate content for further processing since we consumed it
+            if (responseContent != null && response.Content != null)
+            {
+                response.Content = new StringContent(responseContent, Encoding.UTF8,
+                    response.Content.Headers?.ContentType?.MediaType ?? "application/json");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to log response {timestamp}: {ex.Message}");
+        }
+    }
+
+    private void EnsureHistoryDirectory()
+    {
+        if (!Directory.Exists(HistoryFolder))
+            Directory.CreateDirectory(HistoryFolder);
     }
 }

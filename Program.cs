@@ -1,21 +1,25 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.Extensions.AI;
 using BluelBerry;
 
-// Helper utility class for cleaning escaped Unicode quotes.
 internal static class Utils
 {
+    // Method for cleaning escaped quotes
     public static string CleanEscapedQuotes(string input)
     {
         if (string.IsNullOrEmpty(input))
             return string.Empty;
 
-        // Replace sequences of escaped quotes with a single quote
-        return System.Text.RegularExpressions.Regex.Replace(input, @"(\\"")+", @"\""");
+        return System.Text.RegularExpressions.Regex.Replace(input, "\\\"", "\"");
     }
 }
 
 internal static class RateLimitHelper
 {
-    /// <summary>Logs a rate limit event and retry delay.</summary>
+    // Logs a rate limit event and retry delay
     public static void LogRateLimit(int attempt, int delaySeconds)
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
@@ -28,42 +32,35 @@ internal class Program
 {
     private static async Task<int> Main(string[] args)
     {
-        // Set console encoding for proper Unicode display (especially important on Windows)
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         Console.InputEncoding = System.Text.Encoding.UTF8;
         
-        Console.WriteLine("Welcome to 🫐 Blue Berry 🫐");
+        Console.WriteLine("Welcome to Blue Berry 🫐");
 
-        if (args.Contains("--help")||args.Contains("-h")||args.Contains("-?"))
+        if (args.Contains("--help") || args.Contains("-h") || args.Contains("-?"))
         {
             Console.WriteLine(AppOptionsParser.Usage<AppOptions>("bb"));
             return 0;
         }
 
         var options = AppOptionsParser.Parse<AppOptions>(args);
-        Console.WriteLine(options);
 
-        // Initialize all services
         var (chatClient, samplingClient, loggerFactory, tokenTracker) = ChatClientFactory.Create(options);
         var conversationManager = new ConversationManager();
         var mcpManager = new McpClientManager();
         
         try
         {
-            // Initialize MCP clients and tools
             await mcpManager.InitializeAsync(samplingClient);
 
-            // Load system prompt and conversation history
             var baseSystemPrompt = SystemPromptLoader.LoadSystemPrompt();
-            var messages = conversationManager.LoadLatestConversation(baseSystemPrompt);
-
-            // Run the chat session
+            List<ChatMessage> messages = new List<ChatMessage> { new ChatMessage(ChatRole.System, baseSystemPrompt) };
+            
             var session = new ChatSession(chatClient, options, tokenTracker, conversationManager, mcpManager);
             await session.RunAsync(messages, baseSystemPrompt);
         }
         finally
         {
-            // Cleanup resources
             mcpManager.Dispose();
             loggerFactory.Dispose();
             tokenTracker.Dispose();

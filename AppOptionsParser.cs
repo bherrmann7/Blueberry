@@ -134,8 +134,7 @@ public static class AppOptionsParser
             var result = (T)ctor.Invoke(values);
             
             // Print parsed configuration for confirmation
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("✅ Configuration:");
+            Console.Write("  Configuration:");
             foreach (var param in parameters)
             {
                 var paramIndex = Array.IndexOf(parameters, param);
@@ -143,9 +142,8 @@ public static class AppOptionsParser
                 var displayValue = param.Name?.ToLower() == "key" && value?.ToString()?.Length > 8 
                     ? value.ToString()?[..4] + "..." + value.ToString()?[^4..] 
                     : value?.ToString();
-                Console.WriteLine($"   --{ToKebab(param.Name ?? "")}: {displayValue}");
+                Console.Write($"   --{ToKebab(param.Name ?? "")}: {displayValue}");
             }
-            Console.ResetColor();
             Console.WriteLine();
             
             return result;

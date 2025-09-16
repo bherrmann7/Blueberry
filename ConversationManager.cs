@@ -6,9 +6,9 @@ namespace BluelBerry;
 /// <summary>Manages conversation persistence and loading from .bb-history folder.</summary>
 public class ConversationManager
 {
-    private const string HistoryFolder = ".bb-history";
+    private static readonly string HistoryFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".bb-history");
     
-    /// <summary>Loads the most recent conversation snapshot, excluding quota-exceeded files.</summary>
+    /// <summary>Loads the most recent conversation snapshot, excluding non-conversation logs.</summary>
     public List<ChatMessage> LoadLatestConversation(string systemPrompt)
     {
         try
@@ -16,9 +16,15 @@ public class ConversationManager
             if (!Directory.Exists(HistoryFolder))
                 return CreateNewConversation(systemPrompt);
 
+            // Only include actual conversation snapshots. Exclude quota, req/resp logs, and final reports.
             var files = Directory.GetFiles(HistoryFolder, "bb-*.json")
-                .Where(p => !Path.GetFileName(p).StartsWith("bb-quota-exceeded-"))
-                .OrderByDescending(p => new FileInfo(p).LastWriteTimeUtc)
+                .Select(p => new FileInfo(p))
+                .Where(fi => !fi.Name.StartsWith("bb-quota-exceeded-", StringComparison.OrdinalIgnoreCase)
+                             && !fi.Name.StartsWith("bb-req-", StringComparison.OrdinalIgnoreCase)
+                             && !fi.Name.StartsWith("bb-resp-", StringComparison.OrdinalIgnoreCase)
+                             && !fi.Name.StartsWith("bb-session-final-", StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(fi => fi.LastWriteTimeUtc)
+                .Select(fi => fi.FullName)
                 .ToArray();
 
             if (files.Length == 0)
@@ -91,61 +97,57 @@ public class ConversationManager
     /// <summary>Displays the loaded conversation in a readable format.</summary>
     private static void DisplayConversation(List<ChatMessage> messages)
     {
-        Console.WriteLine();
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
-        Console.WriteLine("📜 LOADED CONVERSATION HISTORY");
-        Console.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
-        Console.ResetColor();
+        Console.WriteLine("\n📝 LOADED CONVERSATION HISTORY\n");
 
         for (int i = 0; i < messages.Count; i++)
         {
             var message = messages[i];
-            
+
             // Skip system message for display (first message)
             if (i == 0 && message.Role == ChatRole.System)
                 continue;
 
-            Console.WriteLine();
-            
             // Display role with appropriate color
             if (message.Role == ChatRole.User)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("👤 USER:");
+                Console.Write("👤 USER: ");
             }
             else if (message.Role == ChatRole.Assistant)
             {
                 Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine("🤖 ASSISTANT:");
+                Console.Write("🤖 ASSISTANT: ");
             }
             else if (message.Role == ChatRole.Tool)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("🔧 TOOL:");
+                Console.Write("🔧 TOOL: ");
             }
             Console.ResetColor();
 
             // Display message content with proper formatting
-            var content = message.Text ?? "";
+            var content = message.Text ?? string.Empty;
             if (!string.IsNullOrEmpty(content))
             {
-                // Add indentation for readability
+                // Add indentation for readability only for verbose content.
                 var lines = content.Split('\n');
-                foreach (var line in lines)
+                if (lines.Length == 1)
                 {
-                    Console.WriteLine($"  {line}");
+                    // For single line messages, append directly
+                    Console.WriteLine(lines[0]);
+                }
+                else
+                {
+                    Console.WriteLine();
+                    foreach (var line in lines)
+                    {
+                        Console.WriteLine($"  {line}");
+                    }
                 }
             }
         }
 
-        Console.WriteLine();
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
-        Console.WriteLine("📝 END OF LOADED CONVERSATION");
-        Console.WriteLine("═══════════════════════════════════════════════════════════════════════════════");
-        Console.ResetColor();
-        Console.WriteLine();
+        Console.WriteLine("\n📝 END OF LOADED CONVERSATION\n");
     }
 
     private static List<ChatMessage> CreateNewConversation(string systemPrompt) => 

@@ -56,8 +56,7 @@ public class McpClientManager
         foreach (var client in _clients)
             _tools.AddRange(await client.ListToolsAsync());
 
-        Console.WriteLine($"Tools available: {string.Join(", ", _tools)}");
-        Console.WriteLine();
+        Console.WriteLine($"  Tools: {string.Join(", ", _tools)}");
     }
 
     /// <summary>Gets all available tools.</summary>

@@ -22,7 +22,7 @@ public class ChatClientFactory
         var tokenTracker = new TokenTracker();
 
         var rateLimitLogger = loggerFactory.CreateLogger<RateLimitLoggingHandler>();
-        var rateLimitHandler = new RateLimitLoggingHandler(rateLimitLogger);
+        var rateLimitHandler = new RateLimitLoggingHandler(rateLimitLogger, options.enableHttpLogging);
 
         var openAIClient = new OpenAIClient(
             new ApiKeyCredential(options.key),

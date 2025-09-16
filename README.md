@@ -109,4 +109,4 @@ Or view [all releases](https://github.com/bherrmann7/BlueBerry/releases) for pre
 
 ---
 
-Based on the [Microsoft MCP SDK]() • MIT License • *Have Fun! 🫐*
+Based on the [Microsoft MCP SDK]() • MIT License • *Have Fun! 🤠*

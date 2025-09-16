@@ -8,6 +8,7 @@ public class TokenUsageInfo
 {
     public int InputTokens { get; set; }
     public int OutputTokens { get; set; }
+    public int CachedTokens { get; set; }
     public int TotalTokens => InputTokens + OutputTokens;
     public decimal Cost { get; set; }
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
@@ -30,37 +31,26 @@ public class SessionSummary
     public int MaxContextUsed { get; set; }
 }
 
+// Keeping ModelPricing for backward-compatibility (unused). Prefer EnhancedTokenHelper.CalculateCost
 public static class ModelPricing
 {
-    // Pricing per million tokens - update these as needed
+    // Pricing per million tokens - legacy minimal set. Not used anymore.
     private static readonly Dictionary<string, (decimal input, decimal output)> Prices = new()
     {
-        // OpenAI models
         ["gpt-4o"] = (2.50m, 10.00m),
         ["gpt-4o-mini"] = (0.15m, 0.60m),
         ["gpt-4-turbo"] = (10.00m, 30.00m),
         ["gpt-4"] = (30.00m, 60.00m),
-        ["gpt-3.5-turbo"] = (0.50m, 1.50m),
-
-        // Cerebras models (example pricing - adjust as needed)
-        ["llama3.1-8b"] = (0.10m, 0.10m),
-        ["llama3.1-70b"] = (0.60m, 0.60m)
-
-        // Add more models as needed
+        ["gpt-3.5-turbo"] = (0.50m, 1.50m)
     };
 
     public static (decimal input, decimal output) GetPricing(string modelName)
     {
-        // Try exact match first
         if (Prices.TryGetValue(modelName, out var pricing))
             return pricing;
-
-        // Try partial matches for model families
         foreach (var (key, value) in Prices)
             if (modelName.Contains(key, StringComparison.OrdinalIgnoreCase))
                 return value;
-
-        // Default pricing if model not found
         return (1.00m, 3.00m);
     }
 
@@ -121,7 +111,7 @@ public class TokenTracker : IDisposable
             ModelName = modelName,
             ContextLength = contextLength,
             MaxContextLength = maxContextLength,
-            Cost = ModelPricing.CalculateCost(modelName, inputTokens, outputTokens)
+            Cost = EnhancedTokenHelper.CalculateCost(modelName, inputTokens, outputTokens)
         };
 
         _usageHistory.Add(info);
@@ -144,32 +134,63 @@ public class TokenTracker : IDisposable
             ModelName = modelName,
             ContextLength = estimatedTokens,
             MaxContextLength = maxContextLength,
-            Cost = ModelPricing.CalculateCost(modelName, estimatedTokens, 0)
+            Cost = EnhancedTokenHelper.CalculateCost(modelName, estimatedTokens, 0)
         };
     }
 
-    public TokenUsageInfo TrackStreamingUsage(IEnumerable<ChatResponseUpdate> updates, string modelName, int contextLength, int maxContextLength)
+    public TokenUsageInfo? TrackStreamingUsage(IEnumerable<ChatResponseUpdate> updates, string modelName, int contextLength, int maxContextLength)
     {
-        var outputText = string.Join("", updates
-            .Where(u => u.Text != null)
-            .Select(u => u.Text));
+        var updatesList = updates?.ToList() ?? new List<ChatResponseUpdate>();
+        
+        // Usage info typically comes in the last chunk of a streaming response
+        var lastUpdate = updatesList.LastOrDefault();
+        if (lastUpdate == null)
+            return null;
 
-        var outputTokens = EnhancedTokenHelper.EstimateTokenCount(outputText);
+        // Find a UsageContent entry safely
+        var usage = lastUpdate.Contents?.OfType<UsageContent>().FirstOrDefault();
+        if (usage == null || usage.Details == null)
+            return null;
+
+        int inputTokens = (int)(usage.Details.InputTokenCount ?? 0);
+        int outputTokens = (int)(usage.Details.OutputTokenCount ?? 0);
+        int cachedTokens = 0;
+
+        var additional = usage.Details.AdditionalCounts;
+        if (additional != null)
+        {
+            foreach (var kv in additional)
+            {
+                var key = kv.Key?.Trim();
+                if (string.Equals(key, "InputTokenDetails.CachedTokenCount", StringComparison.OrdinalIgnoreCase) ||
+                    (key?.Contains("CachedTokenCount", StringComparison.OrdinalIgnoreCase) == true))
+                {
+                    cachedTokens = (int)kv.Value;
+                }
+            }
+        }
+
+        // Show detailed cost breakdown (Standard tier by default)
+        var cost = EnhancedTokenHelper.CalculateCost(modelName, inputTokens, outputTokens, cachedTokens);
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine($"🔢 Request Token Usage: prompt={inputTokens}, completion={outputTokens}, cached={cachedTokens}, total={inputTokens + outputTokens} | 💰 Cost: ${cost:F6}");
+        Console.ResetColor();
+        
 
         var info = new TokenUsageInfo
         {
-            InputTokens = 0, // Input tokens are counted with context
+            InputTokens = inputTokens,
             OutputTokens = outputTokens,
+            CachedTokens = cachedTokens,
             ModelName = modelName,
             ContextLength = contextLength,
             MaxContextLength = maxContextLength,
-            Cost = ModelPricing.CalculateCost(modelName, 0, outputTokens)
+            Cost = cost
         };
 
         _usageHistory.Add(info);
         UpdateSessionSummary(info);
         RecordMetrics(info);
-
         return info;
     }
 
@@ -180,7 +201,7 @@ public class TokenTracker : IDisposable
         _sessionSummary.TotalOutputTokens += info.OutputTokens;
         _sessionSummary.TotalCost += info.Cost;
         _sessionSummary.MaxContextUsed = Math.Max(_sessionSummary.MaxContextUsed, info.ContextLength);
-        _sessionSummary.AvgContextUtilization = _usageHistory.Average(u => u.ContextUtilization);
+        _sessionSummary.AvgContextUtilization = _usageHistory.Any() ? _usageHistory.Average(u => u.ContextUtilization) : 0;
     }
 
     private void RecordMetrics(TokenUsageInfo info)
@@ -207,7 +228,7 @@ public class TokenTracker : IDisposable
     {
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine($"💰 Tokens: {info.InputTokens:N0} in + {info.OutputTokens:N0} out = {info.TotalTokens:N0} total");
-        Console.WriteLine($"💵 Cost: ${info.Cost:F4} | Context: {info.ContextLength:N0}/{info.MaxContextLength:N0} ({info.ContextUtilization:P1})");
+        Console.WriteLine($"🪙 Cost: ${info.Cost:F4} | Context: {info.ContextLength:N0}/{info.MaxContextLength:N0} ({info.ContextUtilization:P1})");
         Console.ResetColor();
     }
 
@@ -234,7 +255,7 @@ public class TokenTracker : IDisposable
             GeneratedAt = DateTime.UtcNow
         };
 
-        var json = JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true });
+        var json = System.Text.Json.JsonSerializer.Serialize(report, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(filePath, json);
     }
 }

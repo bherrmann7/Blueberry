@@ -31,10 +31,10 @@ public class ChatSession
         _maxTokens = EnhancedTokenHelper.GetMaxTokens(options.model);
     }
 
-    /// <summary>Runs the main interactive REPL session with commands like /help, /clear, and !!.</summary>
+    /// <summary>Runs the main interactive REPL session with commands like /help, /clear, /resume, and !!.</summary>
     public async Task RunAsync(List<ChatMessage> messages, string baseSystemPrompt)
     {
-        Console.WriteLine($"Model: {_options.model} | Max Context: {EnhancedTokenHelper.FormatTokenCount(_maxTokens)} tokens");
+        Console.WriteLine($"  Model: {_options.model} | Max Context: {EnhancedTokenHelper.FormatTokenCount(_maxTokens)} tokens");
         
         // Load command history for enhanced input
         var historyFile = ".bb-command-history";
@@ -50,6 +50,7 @@ public class ChatSession
             var prompt = EnhancedInputHandler.ReadInput();
             if (string.IsNullOrWhiteSpace(prompt)) continue;
             if (prompt == "exit" || prompt == "quit") break;
+            if (prompt == "/exit" || prompt == "/quit") break;
             if (prompt == "!!") prompt = _lastPrompt ?? "";
 
             if (await HandleCommand(prompt, messages, baseSystemPrompt))
@@ -61,8 +62,7 @@ public class ChatSession
             var updates = await GetStreamingResponseWithRetryAsync(messages);
             var finalContextLength = EnhancedTokenHelper.EstimateTokenCount(messages) +
                                    EnhancedTokenHelper.EstimateTokenCount(string.Join("", updates.Where(u => u.Text != null).Select(u => u.Text)));
-            var usage = _tokenTracker.TrackStreamingUsage(updates, _options.model, finalContextLength, _maxTokens);
-            _tokenTracker.PrintUsageInfo(usage);
+            _tokenTracker.TrackStreamingUsage(updates, _options.model, finalContextLength, _maxTokens);
             messages.AddMessages(updates);
 
             _conversationManager.SaveConversationSnapshot(messages);
@@ -89,7 +89,7 @@ public class ChatSession
         EnhancedTokenHelper.PrintContextWarning(currentContextEstimate, _maxTokens);
     }
 
-    /// <summary>Handles special commands: summary, /help, /clear.</summary>
+    /// <summary>Handles special commands: summary, /help, /clear, /resume.</summary>
     private Task<bool> HandleCommand(string prompt, List<ChatMessage> messages, string baseSystemPrompt)
     {
         switch (prompt)
@@ -108,6 +108,17 @@ public class ChatSession
                 messages.Add(new ChatMessage(ChatRole.System, baseSystemPrompt));
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("\ud83d\udfe2 Conversation history cleared! Context reset to system prompt only.");
+                Console.WriteLine(
+                    $"\ud83d\udccb Context: {EnhancedTokenHelper.FormatTokenCount(EnhancedTokenHelper.EstimateTokenCount(messages))}/{EnhancedTokenHelper.FormatTokenCount(_maxTokens)} tokens");
+                Console.ResetColor();
+                return Task.FromResult(true);
+
+            case "/resume":
+                var loaded = _conversationManager.LoadLatestConversation(baseSystemPrompt);
+                messages.Clear();
+                messages.AddRange(loaded);
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("✅ Resumed last conversation.");
                 Console.WriteLine(
                     $"\ud83d\udccb Context: {EnhancedTokenHelper.FormatTokenCount(EnhancedTokenHelper.EstimateTokenCount(messages))}/{EnhancedTokenHelper.FormatTokenCount(_maxTokens)} tokens");
                 Console.ResetColor();
@@ -175,26 +186,16 @@ public class ChatSession
                 {
                     _lastFunctionCallName = call.Name;
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"\n\ud83d\udee0 Tool Call: {call.Name}");
-                    if (call.Arguments != null && call.Arguments.Count > 0)
-                    {
-                        var argsJson = JsonSerializer.Serialize(call.Arguments, new JsonSerializerOptions { WriteIndented = true });
-                        var indented = argsJson.Replace("\n", "\n    ");
-                        Console.WriteLine($"    Arguments: {indented}");
-                    }
+                    var summary = ToolLogger.SummarizeFunctionCall(call);
+                    Console.WriteLine($"\n\uD83D\uDD27 Tool Call: {summary}");
                     Console.ResetColor();
                 }
                 else if (content is FunctionResultContent result)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("\ud83d\udd04 Tool Result" + (_lastFunctionCallName != null ? $" for {_lastFunctionCallName}" : "") + ":");
-                    if (_lastFunctionCallName == "read_file" || _lastFunctionCallName == "write_file")
-                        Console.WriteLine("    Operation completed.");
-                    else if (result.Result != null)
-                        DisplayToolResult(result.Result);
-
+                    var summary = ToolLogger.SummarizeFunctionResult(result, _lastFunctionCallName);
+                    Console.WriteLine($"\uD83D\uDD04 Tool Result: {summary}");
                     Console.ResetColor();
-                    Console.WriteLine();
                     _lastFunctionCallName = null;
                 }
             }
@@ -210,7 +211,7 @@ public class ChatSession
         if (!string.IsNullOrEmpty(rs))
         {
             // Clean up the text: replace unicode quotes, remove newlines, limit length
-            var cleaned = rs.Replace("\\u0022", "\"")
+            var cleaned = rs.Replace("\\\"", "\"")
                            .Replace("\n", " ")
                            .Replace("\r", " ")
                            .Replace("  ", " ")  // Remove double spaces
