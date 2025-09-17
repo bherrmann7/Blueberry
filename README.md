@@ -1,6 +1,6 @@
 # Blue Berry (bb)
 
-![Blue Berry](blueberry.png)
+<img src="blueberry.png" alt="Blue Berry" width="50%"/>
 
 A .NET 9 console application that connects LLMs to local tools via the Model Context Protocol (MCP). 
 Think of it as a bridge between your favorite LLM and your development environment.
