@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../bb.csproj" />
+    <ProjectReference Include="../../src/bb/bb.csproj" />
   </ItemGroup>
 
 </Project>

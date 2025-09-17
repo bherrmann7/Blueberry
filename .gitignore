@@ -4,3 +4,7 @@ bin
 Folder.DotSettings.user
 .bb-history
 publish
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+QWEN.md

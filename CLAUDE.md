@@ -13,18 +13,21 @@ Blue Berry (bb) is a .NET 9 console application that bridges LLMs with local dev
 dotnet build
 
 # Run locally with default settings (Ollama)
-dotnet run
+dotnet run --project src/bb
 
 # Run with specific LLM provider
-dotnet run -- --model gpt-4o --endpoint https://api.openai.com/v1 --key YOUR_API_KEY
+dotnet run --project src/bb -- --model gpt-4o --endpoint https://api.openai.com/v1 --key YOUR_API_KEY
 
 # Run with Cerebras (free tier available)
-dotnet run -- --model qwen-3-coder-480b --endpoint https://api.cerebras.ai/v1 --key YOUR_API_KEY
+dotnet run --project src/bb -- --model qwen-3-coder-480b --endpoint https://api.cerebras.ai/v1 --key YOUR_API_KEY
+
+# Run tests
+dotnet test
 
 # Build release versions
-dotnet publish -c Release -r win-x64 --self-contained
-dotnet publish -c Release -r osx-x64 --self-contained
-dotnet publish -c Release -r linux-x64 --self-contained
+dotnet publish src/bb -c Release -r win-x64 --self-contained
+dotnet publish src/bb -c Release -r osx-x64 --self-contained
+dotnet publish src/bb -c Release -r linux-x64 --self-contained
 ```
 
 ## Architecture Overview

@@ -36,19 +36,19 @@ jobs:
     # Create platform-specific builds for bb
     - name: Publish Windows x64 (Self-contained)
       if: matrix.os == 'windows-latest'
-      run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/bb-win-x64
-      
+      run: dotnet publish src/bb -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/bb-win-x64
+
     - name: Publish macOS x64 (Self-contained)
       if: matrix.os == 'macos-latest'
-      run: dotnet publish -c Release -r osx-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/bb-osx-x64
-      
+      run: dotnet publish src/bb -c Release -r osx-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/bb-osx-x64
+
     - name: Publish macOS ARM64 (Self-contained)
       if: matrix.os == 'macos-latest'
-      run: dotnet publish -c Release -r osx-arm64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/bb-osx-arm64
-      
+      run: dotnet publish src/bb -c Release -r osx-arm64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/bb-osx-arm64
+
     - name: Publish Linux x64 (Self-contained)
       if: matrix.os == 'ubuntu-latest'
-      run: dotnet publish -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/bb-linux-x64
+      run: dotnet publish src/bb -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/bb-linux-x64
       
     # Create zip files for release (only on main branch pushes)
     - name: Create Windows zip

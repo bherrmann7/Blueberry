@@ -21,7 +21,7 @@ Think of it as a bridge between your favorite LLM and your development environme
 ### Quick Setup (5 minutes):
 1. **Download** the file for your computer above
 2. **Unzip** the downloaded file 
-3. **Get a free API key** from [Cerebras](https://cloud.cerebras.ai?referral_code=y3wvtcmy) (they give you free tokens!)
+3. **Set up LLM** You can use Ollama, or from [Cerebras](https://cloud.cerebras.ai?referral_code=y3wvtcmy) (they have a free tier)
 4. **Run BlueBerry:**
    - **Windows**: Double-click `bb.exe`, or open Command Prompt and run:
      ```
@@ -44,15 +44,17 @@ You should see a chat prompt where you can talk to the AI!
 git clone https://github.com/bherrmann7/Blueberry.git
 cd Blueberry
 dotnet build
-dotnet run -- --model qwen-3-coder-480b --endpoint https://api.cerebras.ai/v1 --key $CEREBRAS_API_KEY
+dotnet run --project src/bb -- --model qwen-3-coder-480b --endpoint https://api.cerebras.ai/v1 --key $CEREBRAS_API_KEY
 ```
 
 ### Project Structure:
-- `Program.cs` - Main entry point and REPL loop
-- `ChatSession.cs` - Manages LLM conversations and function calling
-- `McpClientManager.cs` - Handles MCP server connections
-- `TokenTracker.cs` - Cost tracking and analytics
-- `ConversationManager.cs` - Chat history and persistence
+- `src/bb/` - Main application source code
+  - `Program.cs` - Main entry point and REPL loop
+  - `ChatSession.cs` - Manages LLM conversations and function calling
+  - `McpClientManager.cs` - Handles MCP server connections
+  - `TokenTracker.cs` - Cost tracking and analytics
+  - `ConversationManager.cs` - Chat history and persistence
+- `tests/bb.Tests/` - Unit tests
 
 ### Adding MCP Tools:
 Create `~/.bb/mcp.json` (or `C:\Users\{you}\.bb\mcp.json` on Windows):
