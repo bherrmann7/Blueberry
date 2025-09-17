@@ -7,6 +7,10 @@ on:
     branches: [ main, master ]
   workflow_dispatch: # Allows manual triggering
 
+permissions:
+  contents: write
+  actions: read
+
 jobs:
   build:
     strategy:
