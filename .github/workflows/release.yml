@@ -145,6 +145,10 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         path: ./artifacts
+
+    # Debug: List downloaded artifacts
+    - name: List artifacts
+      run: find ./artifacts -type f -name "*.zip" | sort
         
     # Delete previous "latest" release to avoid accumulating releases
     - name: Delete previous latest release
@@ -158,29 +162,24 @@ jobs:
         
     # Create a new "latest" release
     - name: Create Latest Release
-      run: |
-        RELEASE_NAME="Latest Build ($(date +'%Y-%m-%d %H:%M UTC'))"
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: latest
+        name: "Latest Build"
+        body: |
+          🚀 **Automatic build from latest commit**
 
-        cat > release_notes.md << 'EOF'
-        🚀 **Automatic build from latest commit**
+          **Commit:** ${{ github.sha }}
+          **Branch:** ${{ github.ref_name }}
 
-        **Commit:** ${{ github.sha }}
-        **Branch:** ${{ github.ref_name }}
-        **Built:** $(date -u +'%Y-%m-%d %H:%M UTC')
-
-        This release is automatically generated from the latest code on the main branch.
-        Download the appropriate binary for your platform below.
-
-        ## Recent Changes
-        ${{ github.event.head_commit.message }}
-        EOF
-
-        gh release create latest \
-          --title "$RELEASE_NAME" \
-          --notes-file release_notes.md \
-          ./artifacts/bb-windows-x64-zip/bb-windows-x64.zip \
-          ./artifacts/bb-macos-x64-zip/bb-macos-x64.zip \
-          ./artifacts/bb-macos-arm64-zip/bb-macos-arm64.zip \
+          This release is automatically generated from the latest code on the main branch.
+          Download the appropriate binary for your platform below.
+        files: |
+          ./artifacts/bb-windows-x64-zip/bb-windows-x64.zip
+          ./artifacts/bb-macos-x64-zip/bb-macos-x64.zip
+          ./artifacts/bb-macos-arm64-zip/bb-macos-arm64.zip
           ./artifacts/bb-linux-x64-zip/bb-linux-x64.zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        draft: false
+        prerelease: false
+        make_latest: true
+        token: ${{ secrets.GITHUB_TOKEN }}
