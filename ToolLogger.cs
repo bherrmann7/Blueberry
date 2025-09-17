@@ -12,7 +12,7 @@ public static class ToolLogger
 
     public static string SummarizeFunctionCall(FunctionCallContent call)
     {
-        var args = call.Arguments ?? new Dictionary<string, object>();
+        var args = call.Arguments ?? new Dictionary<string, object?>();
 
         // Helper to get path from common parameter names
         string? GetPath() =>

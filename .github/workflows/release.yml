@@ -152,8 +152,7 @@ jobs:
       with:
         delete_release: true
         tag_name: latest
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
       continue-on-error: true  # Don't fail if there's no previous release
         
     # Create a new "latest" release
@@ -164,14 +163,14 @@ jobs:
         name: "Latest Build ($(date +'%Y-%m-%d %H:%M UTC'))"
         body: |
           🚀 **Automatic build from latest commit**
-          
+
           **Commit:** ${{ github.sha }}
           **Branch:** ${{ github.ref_name }}
           **Built:** $(date -u +'%Y-%m-%d %H:%M UTC')
-          
+
           This release is automatically generated from the latest code on the main branch.
           Download the appropriate binary for your platform below.
-          
+
           ## Recent Changes
           ${{ github.event.head_commit.message }}
         files: |
@@ -181,5 +180,4 @@ jobs:
           ./artifacts/blueberry-linux-x64-zip/blueberry-linux-x64.zip
         draft: false
         prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}

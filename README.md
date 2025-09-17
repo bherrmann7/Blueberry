@@ -1,5 +1,7 @@
 # Blue Berry (bb)
 
+![Blue Berry](blueberry.png)
+
 A .NET 9 console application that connects LLMs to local tools via the Model Context Protocol (MCP). 
 Think of it as a bridge between your favorite LLM and your development environment.
 
