@@ -160,7 +160,9 @@ jobs:
     - name: Create Latest Release
       run: |
         RELEASE_NAME="Latest Build ($(date +'%Y-%m-%d %H:%M UTC'))"
-        RELEASE_BODY="🚀 **Automatic build from latest commit**
+
+        cat > release_notes.md << 'EOF'
+        🚀 **Automatic build from latest commit**
 
         **Commit:** ${{ github.sha }}
         **Branch:** ${{ github.ref_name }}
@@ -170,11 +172,12 @@ jobs:
         Download the appropriate binary for your platform below.
 
         ## Recent Changes
-        ${{ github.event.head_commit.message }}"
+        ${{ github.event.head_commit.message }}
+        EOF
 
         gh release create latest \
           --title "$RELEASE_NAME" \
-          --notes "$RELEASE_BODY" \
+          --notes-file release_notes.md \
           ./artifacts/bb-windows-x64-zip/bb-windows-x64.zip \
           ./artifacts/bb-macos-x64-zip/bb-macos-x64.zip \
           ./artifacts/bb-macos-arm64-zip/bb-macos-arm64.zip \
