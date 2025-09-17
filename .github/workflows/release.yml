@@ -29,105 +29,105 @@ jobs:
     - name: Build
       run: dotnet build --no-restore --configuration Release
       
-    # Create platform-specific builds for BlueBerry
+    # Create platform-specific builds for bb
     - name: Publish Windows x64 (Self-contained)
       if: matrix.os == 'windows-latest'
-      run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/blueberry-win-x64
+      run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/bb-win-x64
       
     - name: Publish macOS x64 (Self-contained)
       if: matrix.os == 'macos-latest'
-      run: dotnet publish -c Release -r osx-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/blueberry-osx-x64
+      run: dotnet publish -c Release -r osx-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/bb-osx-x64
       
     - name: Publish macOS ARM64 (Self-contained)
       if: matrix.os == 'macos-latest'
-      run: dotnet publish -c Release -r osx-arm64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/blueberry-osx-arm64
+      run: dotnet publish -c Release -r osx-arm64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/bb-osx-arm64
       
     - name: Publish Linux x64 (Self-contained)
       if: matrix.os == 'ubuntu-latest'
-      run: dotnet publish -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/blueberry-linux-x64
+      run: dotnet publish -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ./publish/bb-linux-x64
       
     # Create zip files for release (only on main branch pushes)
     - name: Create Windows zip
       if: matrix.os == 'windows-latest' && github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
-        cd ./publish/blueberry-win-x64
-        7z a ../../blueberry-windows-x64.zip *
+        cd ./publish/bb-win-x64
+        7z a ../../bb-windows-x64.zip *
         
     - name: Create macOS x64 zip
       if: matrix.os == 'macos-latest' && github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
-        cd ./publish/blueberry-osx-x64
-        zip -r ../../blueberry-macos-x64.zip *
+        cd ./publish/bb-osx-x64
+        zip -r ../../bb-macos-x64.zip *
         
     - name: Create macOS ARM64 zip
       if: matrix.os == 'macos-latest' && github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
-        cd ./publish/blueberry-osx-arm64
-        zip -r ../../blueberry-macos-arm64.zip *
+        cd ./publish/bb-osx-arm64
+        zip -r ../../bb-macos-arm64.zip *
         
     - name: Create Linux zip
       if: matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
-        cd ./publish/blueberry-linux-x64
-        zip -r ../../blueberry-linux-x64.zip *
+        cd ./publish/bb-linux-x64
+        zip -r ../../bb-linux-x64.zip *
         
     # Upload artifacts for PR builds and regular CI
     - name: Upload Windows x64 build
       if: matrix.os == 'windows-latest'
       uses: actions/upload-artifact@v4
       with:
-        name: blueberry-windows-x64
-        path: ./publish/blueberry-win-x64/
+        name: bb-windows-x64
+        path: ./publish/bb-win-x64/
         
     - name: Upload macOS x64 build
       if: matrix.os == 'macos-latest'
       uses: actions/upload-artifact@v4
       with:
-        name: blueberry-macos-x64
-        path: ./publish/blueberry-osx-x64/
+        name: bb-macos-x64
+        path: ./publish/bb-osx-x64/
         
     - name: Upload macOS ARM64 build
       if: matrix.os == 'macos-latest'
       uses: actions/upload-artifact@v4
       with:
-        name: blueberry-macos-arm64
-        path: ./publish/blueberry-osx-arm64/
+        name: bb-macos-arm64
+        path: ./publish/bb-osx-arm64/
         
     - name: Upload Linux x64 build
       if: matrix.os == 'ubuntu-latest'
       uses: actions/upload-artifact@v4
       with:
-        name: blueberry-linux-x64
-        path: ./publish/blueberry-linux-x64/
+        name: bb-linux-x64
+        path: ./publish/bb-linux-x64/
         
     # Upload zip files as artifacts for the release job (only on main pushes)
     - name: Upload Windows zip
       if: matrix.os == 'windows-latest' && github.ref == 'refs/heads/main' && github.event_name == 'push'
       uses: actions/upload-artifact@v4
       with:
-        name: blueberry-windows-x64-zip
-        path: blueberry-windows-x64.zip
+        name: bb-windows-x64-zip
+        path: bb-windows-x64.zip
         
     - name: Upload macOS x64 zip
       if: matrix.os == 'macos-latest' && github.ref == 'refs/heads/main' && github.event_name == 'push'
       uses: actions/upload-artifact@v4
       with:
-        name: blueberry-macos-x64-zip
-        path: blueberry-macos-x64.zip
+        name: bb-macos-x64-zip
+        path: bb-macos-x64.zip
         
     - name: Upload macOS ARM64 zip
       if: matrix.os == 'macos-latest' && github.ref == 'refs/heads/main' && github.event_name == 'push'
       uses: actions/upload-artifact@v4
       with:
-        name: blueberry-macos-arm64-zip
-        path: blueberry-macos-arm64.zip
+        name: bb-macos-arm64-zip
+        path: bb-macos-arm64.zip
         
     - name: Upload Linux zip
       if: matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/main' && github.event_name == 'push'
       uses: actions/upload-artifact@v4
       with:
-        name: blueberry-linux-x64-zip
-        path: blueberry-linux-x64.zip
+        name: bb-linux-x64-zip
+        path: bb-linux-x64.zip
 
   # Create the actual GitHub release (only on main pushes)
   release:
@@ -174,10 +174,10 @@ jobs:
           ## Recent Changes
           ${{ github.event.head_commit.message }}
         files: |
-          ./artifacts/blueberry-windows-x64-zip/blueberry-windows-x64.zip
-          ./artifacts/blueberry-macos-x64-zip/blueberry-macos-x64.zip
-          ./artifacts/blueberry-macos-arm64-zip/blueberry-macos-arm64.zip
-          ./artifacts/blueberry-linux-x64-zip/blueberry-linux-x64.zip
+          ./artifacts/bb-windows-x64-zip/bb-windows-x64.zip
+          ./artifacts/bb-macos-x64-zip/bb-macos-x64.zip
+          ./artifacts/bb-macos-arm64-zip/bb-macos-arm64.zip
+          ./artifacts/bb-linux-x64-zip/bb-linux-x64.zip
         draft: false
         prerelease: false
         token: ${{ secrets.GITHUB_TOKEN }}

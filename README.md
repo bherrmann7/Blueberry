@@ -1,4 +1,4 @@
-# Blue Berry (bb)
+# Blueberry (bb)
 
 <img src="blueberry.png" alt="Blue Berry" width="50%"/>
 
@@ -11,10 +11,10 @@ Think of it as a bridge between your favorite LLM and your development environme
 
 **Download and double-click to run:**
 
-[![Download for Windows](https://img.shields.io/badge/Windows-Download%20%26%20Run-blue?style=for-the-badge&logo=windows)](https://github.com/bherrmann7/BlueBerry/releases/latest/download/blueberry-windows-x64.zip)
-[![Download for macOS Intel](https://img.shields.io/badge/macOS-Intel-black?style=for-the-badge&logo=apple)](https://github.com/bherrmann7/BlueBerry/releases/latest/download/blueberry-macos-x64.zip)
-[![Download for macOS Apple Silicon](https://img.shields.io/badge/macOS-Apple%20Silicon-black?style=for-the-badge&logo=apple)](https://github.com/bherrmann7/BlueBerry/releases/latest/download/blueberry-macos-arm64.zip)
-[![Download for Linux](https://img.shields.io/badge/Linux-x64-orange?style=for-the-badge&logo=linux)](https://github.com/bherrmann7/BlueBerry/releases/latest/download/blueberry-linux-x64.zip)
+[![Download for Windows](https://img.shields.io/badge/Windows-Download%20%26%20Run-blue?style=for-the-badge&logo=windows)](https://github.com/bherrmann7/Blueberry/releases/latest/download/bb-windows-x64.zip)
+[![Download for macOS Intel](https://img.shields.io/badge/macOS-Intel-black?style=for-the-badge&logo=apple)](https://github.com/bherrmann7/Blueberry/releases/latest/download/bb-macos-x64.zip)
+[![Download for macOS Apple Silicon](https://img.shields.io/badge/macOS-Apple%20Silicon-black?style=for-the-badge&logo=apple)](https://github.com/bherrmann7/Blueberry/releases/latest/download/bb-macos-arm64.zip)
+[![Download for Linux](https://img.shields.io/badge/Linux-x64-orange?style=for-the-badge&logo=linux)](https://github.com/bherrmann7/Blueberry/releases/latest/download/bb-linux-x64.zip)
 
 ### Quick Setup (5 minutes):
 1. **Download** the file for your computer above
@@ -39,8 +39,8 @@ You should see a chat prompt where you can talk to the AI!
 **Clone, build, and extend:**
 
 ```bash
-git clone https://github.com/bherrmann7/BlueBerry.git
-cd BlueBerry
+git clone https://github.com/bherrmann7/Blueberry.git
+cd Blueberry
 dotnet build
 dotnet run -- --model qwen-3-coder-480b --endpoint https://api.cerebras.ai/v1 --key $CEREBRAS_API_KEY
 ```
@@ -107,7 +107,7 @@ The AI coding assistant space is crowded, so why BlueBerry?
 
 Sign up at [Cerebras](https://cloud.cerebras.ai?referral_code=y3wvtcmy) for free tokens to get started.
 
-Or view [all releases](https://github.com/bherrmann7/BlueBerry/releases) for previous versions.
+Or view [all releases](https://github.com/bherrmann7/Blueberry/releases) for previous versions.
 
 ---
 
