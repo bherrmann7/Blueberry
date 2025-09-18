@@ -9,7 +9,7 @@ Think of it as a bridge between your favorite LLM and your development environme
 
 ---
 
-## 🚀 Just Want to Try It? (Non-Developers)
+## 🚀 Just Want to run it?
 
 **Download and double-click to run:**
 
@@ -36,7 +36,7 @@ You should see a chat prompt where you can talk to the AI!
 
 ---
 
-## 🛠️ Developer Path (Want to Hack on It?)
+## 🛠️ Developer Path
 
 **Clone, build, and extend:**
 
