@@ -109,7 +109,7 @@ The AI coding assistant space is crowded, so why BlueBerry?
 
 ## Free LLM Access
 
-Sign up at [Cerebras](https://cloud.cerebras.ai?referral_code=y3wvtcmy) for free tokens to get started.
+Sign up at [Cerebras](https://cloud.cerebras.ai?referral_code=y3wvtcmy) for free tokens to get started (this referral link is supposed to get you an extra 200k / day tokens)
 
 Or view [all releases](https://github.com/bherrmann7/Blueberry/releases) for previous versions.
 
