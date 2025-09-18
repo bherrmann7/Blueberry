@@ -18,7 +18,7 @@ Think of it as a bridge between your favorite LLM and your development environme
 [![Download for macOS Apple Silicon](https://img.shields.io/badge/macOS-Apple%20Silicon-black?style=for-the-badge&logo=apple)](https://github.com/bherrmann7/Blueberry/releases/latest/download/bb-macos-arm64.zip)
 [![Download for Linux](https://img.shields.io/badge/Linux-x64-orange?style=for-the-badge&logo=linux)](https://github.com/bherrmann7/Blueberry/releases/latest/download/bb-linux-x64.zip)
 
-### Quick Setup (5 minutes):
+### Quick Setup:
 1. **Download** the file for your computer above
 2. **Unzip** the downloaded file 
 3. **Set up LLM** You can use Ollama, or from [Cerebras](https://cloud.cerebras.ai?referral_code=y3wvtcmy) (they have a free tier)
