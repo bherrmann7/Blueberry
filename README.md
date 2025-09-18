@@ -71,6 +71,8 @@ Create `~/.bb/mcp.json` (or `C:\Users\{you}\.bb\mcp.json` on Windows):
 }
 ```
 
+If you add the https://github.com/bherrmann7/shell-mcp-server mcp server, then Blueberry can immediately be used for improving itself.
+
 ---
 
 ## What BlueBerry Does
