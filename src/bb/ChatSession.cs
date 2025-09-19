@@ -132,10 +132,11 @@ public class ChatSession
     /// <summary>Gets streaming response with retry logic for rate limiting and quota errors.</summary>
     private async Task<List<ChatResponseUpdate>> GetStreamingResponseWithRetryAsync(List<ChatMessage> messages)
     {
-        var maxRetries = 5;
+        var maxRetries = 50;
         var retryDelaySeconds = 1;
 
-        for (var attempt = 1; attempt <= maxRetries; attempt++)
+        var attempt = 1;
+        for (; attempt <= maxRetries; attempt++)
         {
             try
             {
@@ -171,6 +172,14 @@ public class ChatSession
                 break;
             }
         }
+
+        if (attempt == maxRetries)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"\n\ud83c\udf4c Boo - I tried {maxRetries} and I got nada. Going back to the prompt.");
+            Console.ResetColor();
+        }
+
 
         return new List<ChatResponseUpdate>();
     }
