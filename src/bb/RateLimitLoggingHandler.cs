@@ -121,7 +121,7 @@ public class RateLimitLoggingHandler : DelegatingHandler
             if (response.StatusCode == HttpStatusCode.TooManyRequests)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("⏱️ Rate limited (HTTP 429)");
+                Console.Write(".");
 
                 if (response.Headers.RetryAfter != null)
                 {

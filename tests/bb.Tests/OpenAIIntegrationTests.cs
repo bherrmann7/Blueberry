@@ -6,28 +6,28 @@ using BluelBerry;
 namespace bb.Tests;
 
 [Collection("Integration")]
-public class CerebrasIntegrationTests
+public class OpenAIIntegrationTests
 {
     private readonly ITestOutputHelper _output;
 
-    public CerebrasIntegrationTests(ITestOutputHelper output)
+    public OpenAIIntegrationTests(ITestOutputHelper output)
     {
         _output = output;
     }
 
     [Fact]
-    public async Task SendPhrase_ToCerebras_ShouldReceiveResponse()
+    public async Task SendPhrase_ToOpenAI_ShouldReceiveResponse()
     {
-        // Arrange - Use qwen-3-coder-480b model with Cerebras
-        var apiKey = Environment.GetEnvironmentVariable("CEREBRAS_API_KEY");
+        // Arrange - Use gpt-4o model with OpenAI
+        var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         if (string.IsNullOrEmpty(apiKey))
         {
-            throw new SkipException("CEREBRAS_API_KEY environment variable not set");
+            throw new SkipException("OPENAI_API_KEY environment variable not set");
         }
 
         var options = new AppOptions(
-            model: "qwen-3-coder-480b",
-            endpoint: "https://api.cerebras.ai/v1",
+            model: "gpt-5-mini",
+            endpoint: "https://api.openai.com/v1",
             key: apiKey
         );
 
@@ -44,7 +44,6 @@ public class CerebrasIntegrationTests
             };
 
             var updates = new List<ChatResponseUpdate>();
-            await Task.Delay(TimeSpan.FromSeconds(1));
             await foreach (var update in chatClient.GetStreamingResponseAsync(messages))
             {
                 updates.Add(update);
@@ -67,30 +66,30 @@ public class CerebrasIntegrationTests
         catch (HttpRequestException ex) when (ex.Message.Contains("Unauthorized") || ex.Message.Contains("401"))
         {
             // Skip test if API key is invalid
-            _output.WriteLine("Skipping test - Invalid Cerebras API key");
-            throw new SkipException("Invalid Cerebras API key");
+            _output.WriteLine("Skipping test - Invalid OpenAI API key");
+            throw new SkipException("Invalid OpenAI API key");
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("rate limit") || ex.Message.Contains("429"))
         {
             // Skip test if rate limited
-            _output.WriteLine("Skipping test - Cerebras rate limit exceeded");
-            throw new SkipException("Cerebras rate limit exceeded");
+            _output.WriteLine("Skipping test - OpenAI rate limit exceeded");
+            throw new SkipException("OpenAI rate limit exceeded");
         }
     }
 
     [Fact]
-    public async Task SendSimpleMathQuestion_ToCerebras_ShouldCalculateCorrectly()
+    public async Task SendSimpleMathQuestion_ToOpenAI_ShouldCalculateCorrectly()
     {
         // Arrange
-        var apiKey = Environment.GetEnvironmentVariable("CEREBRAS_API_KEY");
+        var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         if (string.IsNullOrEmpty(apiKey))
         {
-            throw new SkipException("CEREBRAS_API_KEY environment variable not set");
+            throw new SkipException("OPENAI_API_KEY environment variable not set");
         }
 
         var options = new AppOptions(
-            model: "qwen-3-coder-480b",
-            endpoint: "https://api.cerebras.ai/v1",
+            model: "gpt-5-mini",
+            endpoint: "https://api.openai.com/v1",
             key: apiKey
         );
 
@@ -107,7 +106,6 @@ public class CerebrasIntegrationTests
             };
 
             var updates = new List<ChatResponseUpdate>();
-            await Task.Delay(TimeSpan.FromSeconds(1));
             await foreach (var update in chatClient.GetStreamingResponseAsync(messages))
             {
                 updates.Add(update);
@@ -129,29 +127,29 @@ public class CerebrasIntegrationTests
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("Unauthorized") || ex.Message.Contains("401"))
         {
-            _output.WriteLine("Skipping test - Invalid Cerebras API key");
-            throw new SkipException("Invalid Cerebras API key");
+            _output.WriteLine("Skipping test - Invalid OpenAI API key");
+            throw new SkipException("Invalid OpenAI API key");
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("rate limit") || ex.Message.Contains("429"))
         {
-            _output.WriteLine("Skipping test - Cerebras rate limit exceeded");
-            throw new SkipException("Cerebras rate limit exceeded");
+            _output.WriteLine("Skipping test - OpenAI rate limit exceeded");
+            throw new SkipException("OpenAI rate limit exceeded");
         }
     }
 
     [Fact]
-    public async Task SendCodeQuestion_ToCerebras_ShouldGenerateCode()
+    public async Task SendCodeQuestion_ToOpenAI_ShouldGenerateCode()
     {
         // Arrange
-        var apiKey = Environment.GetEnvironmentVariable("CEREBRAS_API_KEY");
+        var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         if (string.IsNullOrEmpty(apiKey))
         {
-            throw new SkipException("CEREBRAS_API_KEY environment variable not set");
+            throw new SkipException("OPENAI_API_KEY environment variable not set");
         }
 
         var options = new AppOptions(
-            model: "qwen-3-coder-480b",
-            endpoint: "https://api.cerebras.ai/v1",
+            model: "gpt-5-mini",
+            endpoint: "https://api.openai.com/v1",
             key: apiKey
         );
 
@@ -168,7 +166,6 @@ public class CerebrasIntegrationTests
             };
 
             var updates = new List<ChatResponseUpdate>();
-            await Task.Delay(TimeSpan.FromSeconds(1));
             await foreach (var update in chatClient.GetStreamingResponseAsync(messages))
             {
                 updates.Add(update);
@@ -179,7 +176,6 @@ public class CerebrasIntegrationTests
             var responseText = string.Join("", updates.Where(u => u.Text != null).Select(u => u.Text));
             Assert.NotEmpty(responseText);
 
-            _output.WriteLine($"Code question: {codeQuestion}");
             _output.WriteLine($"Response: {responseText}");
 
             // Check that response contains C# code patterns
@@ -191,13 +187,13 @@ public class CerebrasIntegrationTests
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("Unauthorized") || ex.Message.Contains("401"))
         {
-            _output.WriteLine("Skipping test - Invalid Cerebras API key");
-            throw new SkipException("Invalid Cerebras API key");
+            _output.WriteLine("Skipping test - Invalid OpenAI API key");
+            throw new SkipException("Invalid OpenAI API key");
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("rate limit") || ex.Message.Contains("429"))
         {
-            _output.WriteLine("Skipping test - Cerebras rate limit exceeded");
-            throw new SkipException("Cerebras rate limit exceeded");
+            _output.WriteLine("Skipping test - OpenAI rate limit exceeded");
+            throw new SkipException("OpenAI rate limit exceeded");
         }
     }
 }
