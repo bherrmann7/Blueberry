@@ -21,6 +21,12 @@ public class ModelManager
         return _models.FirstOrDefault(m => m.ShortName.Equals(shortName, StringComparison.OrdinalIgnoreCase));
     }
 
+    public string? GetApiModelName(string shortName)
+    {
+        var model = GetModelByShortName(shortName);
+        return model?.Name;
+    }
+
     public List<string> GetAvailableModelNames()
     {
         return _models.Select(m => m.ShortName).ToList();

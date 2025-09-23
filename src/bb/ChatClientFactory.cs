@@ -10,10 +10,14 @@ using OpenTelemetry.Trace;
 
 namespace BluelBerry;
 
-/// <summary>Factory for creating configured chat clients with logging and rate limiting.</summary>
+/// <summary>
+/// Factory for creating configured chat clients with logging and rate limiting.
+/// </summary>
 public class ChatClientFactory
 {
-    /// <summary>Creates a chat client with logging, rate limiting, and function invocation support.</summary>
+    /// <summary>
+    /// Creates a chat client with logging, rate limiting, and function invocation support.
+    /// </summary>
     public static (IChatClient chatClient, IChatClient samplingClient, ILoggerFactory loggerFactory, TokenTracker tokenTracker) Create(AppOptions options)
     {
         var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());

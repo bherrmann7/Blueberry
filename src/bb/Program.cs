@@ -73,10 +73,11 @@ internal class Program
             }
 
             // Create options from the model configuration
-            // We need to manually construct the options to avoid the automatic display from AppOptionsParser
+            // Use the actual model name for API calls but preserve short name for display
             options = new AppOptions(model.Name, model.Endpoint, model.Key, false);
             
             // Display the configuration that will actually be used
+            // Use the resolved model name instead of the short name for clarity
             DisplayConfiguration(options);
         }
         else
