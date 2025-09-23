@@ -1,0 +1,26 @@
+[
+  {
+    "Name": "GPT-4 Turbo",
+    "ShortName": "gpt-4-turbo",
+    "Endpoint": "https://api.openai.com/v1",
+    "Key": "sk-..."
+  },
+  {
+    "Name": "Claude 3.5 Sonnet",
+    "ShortName": "claude-3-5-sonnet",
+    "Endpoint": "https://api.anthropic.com/v1",
+    "Key": "sk-ant-..."
+  },
+  {
+    "Name": "Llama 3 8B (Ollama)",
+    "ShortName": "llama3-8b",
+    "Endpoint": "http://localhost:11434/v1",
+    "Key": "not-used-with-ollama"
+  },
+  {
+    "Name": "GPT-4 OSS 20B",
+    "ShortName": "gpt-oss-20b",
+    "Endpoint": "http://127.0.0.1:11434/v1",
+    "Key": "not-used-with-ollama"
+  }
+]
