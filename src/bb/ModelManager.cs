@@ -195,4 +195,41 @@ public class ModelManager
             Console.WriteLine($"Warning: Could not create default models file: {ex.Message}");
         }
     }
+
+    /// <summary>Displays all configured models in a formatted table.</summary>
+    public void DisplayModels()
+    {
+        if (Models == null || Models.Count == 0)
+        {
+            Console.WriteLine("No models found.");
+            return;
+        }
+
+        // Calculate column widths for proper formatting
+        var shortnameWidth = Math.Max("Shortname".Length, Models.Max(m => m.ShortName.Length));
+        var nameWidth = Math.Max("Model".Length, Models.Max(m => m.Name.Length));
+        var endpointWidth = Math.Max("Endpoint".Length, Models.Max(m => m.Endpoint.Length));
+
+        // Ensure minimum widths for better readability
+        shortnameWidth = Math.Max(shortnameWidth, 12);
+        nameWidth = Math.Max(nameWidth, 15);
+        endpointWidth = Math.Max(endpointWidth, 25);
+
+        // Header
+        Console.WriteLine($"{PadRight("Shortname", shortnameWidth)} | {PadRight("Model", nameWidth)} | {"Endpoint"}");
+        Console.WriteLine($"{new string('-', shortnameWidth)} | {new string('-', nameWidth)} | {new string('-', endpointWidth)}");
+
+        // Model data
+        foreach (var model in Models)
+        {
+            Console.WriteLine($"{PadRight(model.ShortName, shortnameWidth)} | {PadRight(model.Name, nameWidth)} | {model.Endpoint}");
+        }
+    }
+
+    private static string PadRight(string text, int width)
+    {
+        if (text.Length >= width)
+            return text.Length > width ? text.Substring(0, width) : text;
+        return text.PadRight(width);
+    }
 }

@@ -37,21 +37,25 @@ internal class Program
         
         Console.WriteLine("Welcome to Blue Berry 🫐");
 
-        // Check if the first argument is "model", "m", or "models" to list all available models
-        if (args.Length > 0 && (args[0].Equals("model", StringComparison.OrdinalIgnoreCase) ||
-                                args[0].Equals("m", StringComparison.OrdinalIgnoreCase) ||
-                                args[0].Equals("models", StringComparison.OrdinalIgnoreCase)))
+        // Check for special commands
+        if (args.Length > 0)
         {
-            var listModelManager = new ModelManager();
-            DisplayModels(listModelManager.Models);
-            return 0;
-        }
-
-        // Check if the first argument is "mcp" to list all configured MCP servers
-        if (args.Length > 0 && args[0].Equals("mcp", StringComparison.OrdinalIgnoreCase))
-        {
-            McpConfigLoader.DisplayMcpServers();
-            return 0;
+            var command = args[0].ToLowerInvariant();
+            
+            // Handle model listing commands
+            if (command is "model" or "m" or "models")
+            {
+                var listModelManager = new ModelManager();
+                listModelManager.DisplayModels();
+                return 0;
+            }
+            
+            // Handle MCP server listing command
+            if (command == "mcp")
+            {
+                McpConfigLoader.DisplayMcpServers();
+                return 0;
+            }
         }
 
         if (args.Contains("--help") || args.Contains("-h") || args.Contains("/?"))
@@ -146,41 +150,5 @@ internal class Program
         Console.Write($"   --key: {displayKey}");
         Console.Write($"   --enable-http-logging: {options.enableHttpLogging}");
         Console.WriteLine();
-    }
-
-    private static void DisplayModels(List<Model> models)
-    {
-        if (models == null || models.Count == 0)
-        {
-            Console.WriteLine("No models found.");
-            return;
-        }
-
-        // Calculate column widths for proper formatting
-        var shortnameWidth = Math.Max("Shortname".Length, models.Max(m => m.ShortName.Length));
-        var nameWidth = Math.Max("Model".Length, models.Max(m => m.Name.Length));
-        var endpointWidth = Math.Max("Endpoint".Length, models.Max(m => m.Endpoint.Length));
-
-        // Ensure minimum widths for better readability
-        shortnameWidth = Math.Max(shortnameWidth, 12);
-        nameWidth = Math.Max(nameWidth, 15);
-        endpointWidth = Math.Max(endpointWidth, 25);
-
-        // Header
-        Console.WriteLine($"{PadRight("Shortname", shortnameWidth)} | {PadRight("Model", nameWidth)} | {"Endpoint"}");
-        Console.WriteLine($"{new string('-', shortnameWidth)} | {new string('-', nameWidth)} | {new string('-', endpointWidth)}");
-
-        // Model data
-        foreach (var model in models)
-        {
-            Console.WriteLine($"{PadRight(model.ShortName, shortnameWidth)} | {PadRight(model.Name, nameWidth)} | {model.Endpoint}");
-        }
-    }
-
-    private static string PadRight(string text, int width)
-    {
-        if (text.Length >= width)
-            return text.Length > width ? text.Substring(0, width) : text;
-        return text.PadRight(width);
     }
 }
