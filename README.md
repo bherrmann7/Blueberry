@@ -118,3 +118,5 @@ Or view [all releases](https://github.com/bherrmann7/Blueberry/releases) for pre
 ---
 
 Based on the [Microsoft MCP SDK]() • MIT License • *Have Fun! 🤠*
+
+Specifically from https://github.com/modelcontextprotocol/csharp-sdk/blob/main/samples/ChatWithTools/Program.cs

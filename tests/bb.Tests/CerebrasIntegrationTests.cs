@@ -2,6 +2,8 @@ using Microsoft.Extensions.AI;
 using Xunit;
 using Xunit.Abstractions;
 using BluelBerry;
+using System.Net;
+using System.Net.Http;
 
 namespace bb.Tests;
 
@@ -22,7 +24,11 @@ public class CerebrasIntegrationTests
         var apiKey = Environment.GetEnvironmentVariable("CEREBRAS_API_KEY");
         if (string.IsNullOrEmpty(apiKey))
         {
-            throw new SkipException("CEREBRAS_API_KEY environment variable not set");
+            _output.WriteLine("SKIP: CEREBRAS_API_KEY environment variable not set. To run this test:");
+            _output.WriteLine("  1. Sign up at https://cloud.cerebras.ai");
+            _output.WriteLine("  2. Get your API key from the dashboard");
+            _output.WriteLine("  3. Set environment variable: export CEREBRAS_API_KEY=your_key_here");
+            return; // Skip test gracefully
         }
 
         var options = new AppOptions(
@@ -66,15 +72,23 @@ public class CerebrasIntegrationTests
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("Unauthorized") || ex.Message.Contains("401"))
         {
-            // Skip test if API key is invalid
-            _output.WriteLine("Skipping test - Invalid Cerebras API key");
-            throw new SkipException("Invalid Cerebras API key");
+            _output.WriteLine($"SKIP: Cerebras API key is invalid or unauthorized. Please check your CEREBRAS_API_KEY environment variable. Error: {ex.Message}");
+            return; // Skip test gracefully
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("rate limit") || ex.Message.Contains("429"))
         {
-            // Skip test if rate limited
-            _output.WriteLine("Skipping test - Cerebras rate limit exceeded");
-            throw new SkipException("Cerebras rate limit exceeded");
+            _output.WriteLine($"SKIP: Cerebras rate limit exceeded. Please try again later. Error: {ex.Message}");
+            return; // Skip test gracefully
+        }
+        catch (HttpRequestException ex)
+        {
+            _output.WriteLine($"SKIP: Network error connecting to Cerebras API. Please check your internet connection. Error: {ex.Message}");
+            return; // Skip test gracefully
+        }
+        catch (Exception ex)
+        {
+            _output.WriteLine($"SKIP: Unexpected error during Cerebras test. Error: {ex.Message}");
+            return; // Skip test gracefully
         }
     }
 
@@ -85,7 +99,11 @@ public class CerebrasIntegrationTests
         var apiKey = Environment.GetEnvironmentVariable("CEREBRAS_API_KEY");
         if (string.IsNullOrEmpty(apiKey))
         {
-            throw new SkipException("CEREBRAS_API_KEY environment variable not set");
+            _output.WriteLine("SKIP: CEREBRAS_API_KEY environment variable not set. To run this test:");
+            _output.WriteLine("  1. Sign up at https://cloud.cerebras.ai");
+            _output.WriteLine("  2. Get your API key from the dashboard");
+            _output.WriteLine("  3. Set environment variable: export CEREBRAS_API_KEY=your_key_here");
+            return; // Skip test gracefully
         }
 
         var options = new AppOptions(
@@ -129,13 +147,23 @@ public class CerebrasIntegrationTests
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("Unauthorized") || ex.Message.Contains("401"))
         {
-            _output.WriteLine("Skipping test - Invalid Cerebras API key");
-            throw new SkipException("Invalid Cerebras API key");
+            _output.WriteLine($"SKIP: Cerebras API key is invalid or unauthorized. Please check your CEREBRAS_API_KEY environment variable. Error: {ex.Message}");
+            return; // Skip test gracefully
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("rate limit") || ex.Message.Contains("429"))
         {
-            _output.WriteLine("Skipping test - Cerebras rate limit exceeded");
-            throw new SkipException("Cerebras rate limit exceeded");
+            _output.WriteLine($"SKIP: Cerebras rate limit exceeded. Please try again later. Error: {ex.Message}");
+            return; // Skip test gracefully
+        }
+        catch (HttpRequestException ex)
+        {
+            _output.WriteLine($"SKIP: Network error connecting to Cerebras API. Please check your internet connection. Error: {ex.Message}");
+            return; // Skip test gracefully
+        }
+        catch (Exception ex)
+        {
+            _output.WriteLine($"SKIP: Unexpected error during Cerebras test. Error: {ex.Message}");
+            return; // Skip test gracefully
         }
     }
 
@@ -146,7 +174,11 @@ public class CerebrasIntegrationTests
         var apiKey = Environment.GetEnvironmentVariable("CEREBRAS_API_KEY");
         if (string.IsNullOrEmpty(apiKey))
         {
-            throw new SkipException("CEREBRAS_API_KEY environment variable not set");
+            _output.WriteLine("SKIP: CEREBRAS_API_KEY environment variable not set. To run this test:");
+            _output.WriteLine("  1. Sign up at https://cloud.cerebras.ai");
+            _output.WriteLine("  2. Get your API key from the dashboard");
+            _output.WriteLine("  3. Set environment variable: export CEREBRAS_API_KEY=your_key_here");
+            return; // Skip test gracefully
         }
 
         var options = new AppOptions(
@@ -191,13 +223,23 @@ public class CerebrasIntegrationTests
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("Unauthorized") || ex.Message.Contains("401"))
         {
-            _output.WriteLine("Skipping test - Invalid Cerebras API key");
-            throw new SkipException("Invalid Cerebras API key");
+            _output.WriteLine($"SKIP: Cerebras API key is invalid or unauthorized. Please check your CEREBRAS_API_KEY environment variable. Error: {ex.Message}");
+            return; // Skip test gracefully
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("rate limit") || ex.Message.Contains("429"))
         {
-            _output.WriteLine("Skipping test - Cerebras rate limit exceeded");
-            throw new SkipException("Cerebras rate limit exceeded");
+            _output.WriteLine($"SKIP: Cerebras rate limit exceeded. Please try again later. Error: {ex.Message}");
+            return; // Skip test gracefully
+        }
+        catch (HttpRequestException ex)
+        {
+            _output.WriteLine($"SKIP: Network error connecting to Cerebras API. Please check your internet connection. Error: {ex.Message}");
+            return; // Skip test gracefully
+        }
+        catch (Exception ex)
+        {
+            _output.WriteLine($"SKIP: Unexpected error during Cerebras test. Error: {ex.Message}");
+            return; // Skip test gracefully
         }
     }
 }

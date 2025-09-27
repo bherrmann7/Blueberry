@@ -141,7 +141,9 @@ public class RateLimitLoggingHandler : DelegatingHandler
             else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"❌ HTTP Error: {(int)response.StatusCode} {response.StatusCode}");
+                var modelInfo = await GetModelFromRequestAsync(request);
+                var modelText = string.IsNullOrEmpty(modelInfo) ? "" : $" (model: {modelInfo})";
+                Console.WriteLine($"❌ HTTP Error: {(int)response.StatusCode} {response.StatusCode} - {request.RequestUri}{modelText}");
                 Console.ResetColor();
             }
         }
@@ -218,5 +220,30 @@ public class RateLimitLoggingHandler : DelegatingHandler
     {
         if (!Directory.Exists(HistoryFolder))
             Directory.CreateDirectory(HistoryFolder);
+    }
+
+    private static async Task<string?> GetModelFromRequestAsync(HttpRequestMessage request)
+    {
+        try
+        {
+            if (request.Content == null) return null;
+
+            // Read the content without consuming the stream
+            var content = await request.Content.ReadAsStringAsync();
+            if (string.IsNullOrEmpty(content)) return null;
+
+            // Parse JSON and extract model field
+            using var jsonDoc = JsonDocument.Parse(content);
+            if (jsonDoc.RootElement.TryGetProperty("model", out var modelElement))
+            {
+                return modelElement.GetString();
+            }
+        }
+        catch (Exception)
+        {
+            // Silently ignore JSON parsing errors
+        }
+
+        return null;
     }
 }

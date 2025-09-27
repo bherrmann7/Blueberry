@@ -6,28 +6,34 @@ using ModelContextProtocol.Protocol;
 namespace BluelBerry;
 
 /// <summary>Manages MCP server configuration and tool loading.</summary>
-public class McpClientManager
+public class McpClientManager : IDisposable
 {
     private readonly List<IMcpClient> _clients = new();
     private readonly List<McpClientTool> _tools = new();
+    private readonly McpConfigurationManager _configManager;
+
+    public McpClientManager()
+    {
+        _configManager = new McpConfigurationManager();
+    }
+
+    public McpClientManager(McpConfigurationManager configManager)
+    {
+        _configManager = configManager;
+    }
 
     /// <summary>Initializes MCP clients from configuration file.</summary>
     public async Task InitializeAsync(IChatClient samplingClient)
     {
-        var homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        var mcpConfigPath = Path.Combine(homeDirectory, ".bb", "mcp.json");
-
-        if (!File.Exists(mcpConfigPath))
+        if (!_configManager.ConfigFileExists)
         {
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine($"No MCP servers configured (aka no {mcpConfigPath}");
+            Console.WriteLine($"No MCP servers configured (aka no {_configManager.ConfigPath}");
             Console.ResetColor();
             return;
         }
 
-        var mcpConfigJson = File.ReadAllText(mcpConfigPath);
-        var mcpConfig = JsonSerializer.Deserialize<McpConfig>(mcpConfigJson, 
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var mcpConfig = _configManager.LoadConfiguration();
 
         if (mcpConfig?.McpServers == null) return;
 

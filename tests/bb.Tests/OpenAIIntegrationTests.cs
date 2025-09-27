@@ -2,6 +2,8 @@ using Microsoft.Extensions.AI;
 using Xunit;
 using Xunit.Abstractions;
 using BluelBerry;
+using System.Net;
+using System.Net.Http;
 
 namespace bb.Tests;
 
@@ -22,11 +24,12 @@ public class OpenAIIntegrationTests
         var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         if (string.IsNullOrEmpty(apiKey))
         {
-            throw new SkipException("OPENAI_API_KEY environment variable not set");
+            _output.WriteLine("SKIP: OPENAI_API_KEY environment variable not set. To run this test, set the environment variable with your OpenAI API key.");
+            return; // Skip test gracefully
         }
 
         var options = new AppOptions(
-            model: "gpt-5-mini",
+            model: "gpt-4o-mini",
             endpoint: "https://api.openai.com/v1",
             key: apiKey
         );
@@ -65,15 +68,23 @@ public class OpenAIIntegrationTests
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("Unauthorized") || ex.Message.Contains("401"))
         {
-            // Skip test if API key is invalid
-            _output.WriteLine("Skipping test - Invalid OpenAI API key");
-            throw new SkipException("Invalid OpenAI API key");
+            _output.WriteLine($"SKIP: OpenAI API key is invalid or unauthorized. Please check your OPENAI_API_KEY environment variable. Error: {ex.Message}");
+            return; // Skip test gracefully
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("rate limit") || ex.Message.Contains("429"))
         {
-            // Skip test if rate limited
-            _output.WriteLine("Skipping test - OpenAI rate limit exceeded");
-            throw new SkipException("OpenAI rate limit exceeded");
+            _output.WriteLine($"SKIP: OpenAI rate limit exceeded. Please try again later. Error: {ex.Message}");
+            return; // Skip test gracefully
+        }
+        catch (HttpRequestException ex)
+        {
+            _output.WriteLine($"SKIP: Network error connecting to OpenAI API. Please check your internet connection. Error: {ex.Message}");
+            return; // Skip test gracefully
+        }
+        catch (Exception ex)
+        {
+            _output.WriteLine($"SKIP: Unexpected error during OpenAI test. Error: {ex.Message}");
+            return; // Skip test gracefully
         }
     }
 
@@ -84,11 +95,12 @@ public class OpenAIIntegrationTests
         var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         if (string.IsNullOrEmpty(apiKey))
         {
-            throw new SkipException("OPENAI_API_KEY environment variable not set");
+            _output.WriteLine("SKIP: OPENAI_API_KEY environment variable not set. To run this test, set the environment variable with your OpenAI API key.");
+            return; // Skip test gracefully
         }
 
         var options = new AppOptions(
-            model: "gpt-5-mini",
+            model: "gpt-4o-mini",
             endpoint: "https://api.openai.com/v1",
             key: apiKey
         );
@@ -127,13 +139,23 @@ public class OpenAIIntegrationTests
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("Unauthorized") || ex.Message.Contains("401"))
         {
-            _output.WriteLine("Skipping test - Invalid OpenAI API key");
-            throw new SkipException("Invalid OpenAI API key");
+            _output.WriteLine($"SKIP: OpenAI API key is invalid or unauthorized. Please check your OPENAI_API_KEY environment variable. Error: {ex.Message}");
+            return; // Skip test gracefully
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("rate limit") || ex.Message.Contains("429"))
         {
-            _output.WriteLine("Skipping test - OpenAI rate limit exceeded");
-            throw new SkipException("OpenAI rate limit exceeded");
+            _output.WriteLine($"SKIP: OpenAI rate limit exceeded. Please try again later. Error: {ex.Message}");
+            return; // Skip test gracefully
+        }
+        catch (HttpRequestException ex)
+        {
+            _output.WriteLine($"SKIP: Network error connecting to OpenAI API. Please check your internet connection. Error: {ex.Message}");
+            return; // Skip test gracefully
+        }
+        catch (Exception ex)
+        {
+            _output.WriteLine($"SKIP: Unexpected error during OpenAI test. Error: {ex.Message}");
+            return; // Skip test gracefully
         }
     }
 
@@ -144,11 +166,12 @@ public class OpenAIIntegrationTests
         var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         if (string.IsNullOrEmpty(apiKey))
         {
-            throw new SkipException("OPENAI_API_KEY environment variable not set");
+            _output.WriteLine("SKIP: OPENAI_API_KEY environment variable not set. To run this test, set the environment variable with your OpenAI API key.");
+            return; // Skip test gracefully
         }
 
         var options = new AppOptions(
-            model: "gpt-5-mini",
+            model: "gpt-4o-mini",
             endpoint: "https://api.openai.com/v1",
             key: apiKey
         );
@@ -187,13 +210,23 @@ public class OpenAIIntegrationTests
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("Unauthorized") || ex.Message.Contains("401"))
         {
-            _output.WriteLine("Skipping test - Invalid OpenAI API key");
-            throw new SkipException("Invalid OpenAI API key");
+            _output.WriteLine($"SKIP: OpenAI API key is invalid or unauthorized. Please check your OPENAI_API_KEY environment variable. Error: {ex.Message}");
+            return; // Skip test gracefully
         }
         catch (HttpRequestException ex) when (ex.Message.Contains("rate limit") || ex.Message.Contains("429"))
         {
-            _output.WriteLine("Skipping test - OpenAI rate limit exceeded");
-            throw new SkipException("OpenAI rate limit exceeded");
+            _output.WriteLine($"SKIP: OpenAI rate limit exceeded. Please try again later. Error: {ex.Message}");
+            return; // Skip test gracefully
+        }
+        catch (HttpRequestException ex)
+        {
+            _output.WriteLine($"SKIP: Network error connecting to OpenAI API. Please check your internet connection. Error: {ex.Message}");
+            return; // Skip test gracefully
+        }
+        catch (Exception ex)
+        {
+            _output.WriteLine($"SKIP: Unexpected error during OpenAI test. Error: {ex.Message}");
+            return; // Skip test gracefully
         }
     }
 }

@@ -47,6 +47,13 @@ internal class Program
             return 0;
         }
 
+        // Check if the first argument is "mcp" to list all configured MCP servers
+        if (args.Length > 0 && args[0].Equals("mcp", StringComparison.OrdinalIgnoreCase))
+        {
+            McpConfigLoader.DisplayMcpServers();
+            return 0;
+        }
+
         if (args.Contains("--help") || args.Contains("-h") || args.Contains("/?"))
         {
             Console.WriteLine(AppOptionsParser.Usage<AppOptions>("bb"));
