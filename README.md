@@ -20,7 +20,7 @@ Think of it as a bridge between your favorite LLM and your development environme
 
 ### Quick Setup:
 1. **Download** the file for your computer above
-2. **Unzip** the downloaded file 
+2. **Unzip** the downloaded file
 3. **Set up LLM** You can use Ollama, or from [Cerebras](https://cloud.cerebras.ai?referral_code=y3wvtcmy) (they have a free tier)
 4. **Run BlueBerry:**
    - **Windows**: Double-click `bb.exe`, or open Command Prompt and run:
@@ -33,6 +33,22 @@ Think of it as a bridge between your favorite LLM and your development environme
      ```
 
 You should see a chat prompt where you can talk to the AI!
+
+### Usage Options:
+
+Once installed, you can run BlueBerry in several ways:
+
+1. **Using model short names** (requires `~/.bb/models.json` configuration):
+   ```bash
+   bb <model-short-name>
+   ```
+   This uses the short name to automatically set the model, endpoint, and key from your `~/.bb/models.json` configuration file.
+
+2. **Display configured MCP servers**:
+   ```bash
+   bb mcp
+   ```
+   Shows the currently configured MCP servers from `~/.bb/mcp.json` and exits.
 
 ---
 
