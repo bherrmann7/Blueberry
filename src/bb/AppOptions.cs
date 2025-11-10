@@ -1,4 +1,4 @@
-namespace BluelBerry;
+namespace BlueBerry;
 
 public record AppOptions(
     string model = "gpt-oss:20b",

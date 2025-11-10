@@ -2,7 +2,7 @@ using System.Diagnostics.Metrics;
 using System.Text.Json;
 using Microsoft.Extensions.AI;
 
-namespace BluelBerry;
+namespace BlueBerry;
 
 public class TokenUsageInfo
 {
@@ -61,7 +61,7 @@ public static class ModelPricing
     }
 }
 
-public class TokenTracker : IDisposable
+public class TokenTracker : ITokenTracker
 {
     private readonly Histogram<double> _contextUtilizationHistogram;
     private readonly Counter<decimal> _costCounter;
@@ -73,7 +73,7 @@ public class TokenTracker : IDisposable
 
     public TokenTracker()
     {
-        _meter = new Meter("BluelBerry.Tokens");
+        _meter = new Meter("BlueBerry.Tokens");
         _inputTokensCounter = _meter.CreateCounter<int>("tokens.input", "tokens", "Input tokens consumed");
         _outputTokensCounter = _meter.CreateCounter<int>("tokens.output", "tokens", "Output tokens generated");
         _costCounter = _meter.CreateCounter<decimal>("cost.total", "USD", "Total cost incurred");

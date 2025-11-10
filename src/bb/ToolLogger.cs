@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.AI;
 
-namespace BluelBerry;
+namespace BlueBerry;
 
 public static class ToolLogger
 {

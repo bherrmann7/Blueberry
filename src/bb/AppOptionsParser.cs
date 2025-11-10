@@ -1,4 +1,4 @@
-namespace BluelBerry;
+namespace BlueBerry;
 
 /// <summary>Lightweight command-line options parser using reflection with strict validation.</summary>
 public static class AppOptionsParser

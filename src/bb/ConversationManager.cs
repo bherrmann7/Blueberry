@@ -1,12 +1,12 @@
 using System.Text.Json;
 using Microsoft.Extensions.AI;
 
-namespace BluelBerry;
+namespace BlueBerry;
 
 /// <summary>Manages conversation persistence and loading from .bb-history folder.</summary>
-public class ConversationManager
+public class ConversationManager : IConversationManager
 {
-    private static readonly string HistoryFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".bb-history");
+    private static readonly string HistoryFolder = BlueBerryConstants.Directories.History;
     
     /// <summary>Loads the most recent conversation snapshot, excluding non-conversation logs.</summary>
     public List<ChatMessage> LoadLatestConversation(string systemPrompt)
@@ -17,12 +17,12 @@ public class ConversationManager
                 return CreateNewConversation(systemPrompt);
 
             // Only include actual conversation snapshots. Exclude quota, req/resp logs, and final reports.
-            var files = Directory.GetFiles(HistoryFolder, "bb-*.json")
+            var files = Directory.GetFiles(HistoryFolder, $"{BlueBerryConstants.SnapshotPrefixes.Conversation}*.json")
                 .Select(p => new FileInfo(p))
-                .Where(fi => !fi.Name.StartsWith("bb-quota-exceeded-", StringComparison.OrdinalIgnoreCase)
-                             && !fi.Name.StartsWith("bb-req-", StringComparison.OrdinalIgnoreCase)
-                             && !fi.Name.StartsWith("bb-resp-", StringComparison.OrdinalIgnoreCase)
-                             && !fi.Name.StartsWith("bb-session-final-", StringComparison.OrdinalIgnoreCase))
+                .Where(fi => !fi.Name.StartsWith(BlueBerryConstants.SnapshotPrefixes.QuotaExceeded, StringComparison.OrdinalIgnoreCase)
+                             && !fi.Name.StartsWith(BlueBerryConstants.SnapshotPrefixes.HttpRequest, StringComparison.OrdinalIgnoreCase)
+                             && !fi.Name.StartsWith(BlueBerryConstants.SnapshotPrefixes.HttpResponse, StringComparison.OrdinalIgnoreCase)
+                             && !fi.Name.StartsWith(BlueBerryConstants.SnapshotPrefixes.SessionFinal, StringComparison.OrdinalIgnoreCase))
                 .OrderByDescending(fi => fi.LastWriteTimeUtc)
                 .Select(fi => fi.FullName)
                 .ToArray();
@@ -63,35 +63,38 @@ public class ConversationManager
         EnsureHistoryDirectory();
         var json = JsonSerializer.Serialize(messages);
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        File.WriteAllText(Path.Combine(HistoryFolder, $"bb-{timestamp}.json"), json);
+        File.WriteAllText(Path.Combine(HistoryFolder, $"{BlueBerryConstants.SnapshotPrefixes.Conversation}{timestamp}.json"), json);
     }
 
     /// <summary>Saves conversation before clearing with special prefix.</summary>
     public void SavePreClearSnapshot(List<ChatMessage> messages)
     {
         if (messages.Count <= 1) return;
-        
+
         EnsureHistoryDirectory();
         var json = JsonSerializer.Serialize(messages);
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        var filename = $"bb-pre-clear-{timestamp}.json";
+        var filename = $"{BlueBerryConstants.SnapshotPrefixes.PreClear}{timestamp}.json";
         File.WriteAllText(Path.Combine(HistoryFolder, filename), json);
-        Console.WriteLine($"💾 Conversation saved before clearing to {HistoryFolder}/{filename}");
+        Console.WriteLine($"{BlueBerryConstants.Emojis.Save} Conversation saved before clearing to {HistoryFolder}/{filename}");
     }
 
-    /// <summary>Saves quota exceeded snapshot and exits.</summary>
+    /// <summary>Saves quota exceeded snapshot and throws QuotaExceededException.</summary>
     public void SaveQuotaExceededSnapshot(List<ChatMessage> messages, string errorMessage)
     {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("\n🚨 DAILY TOKEN QUOTA EXCEEDED 🚨");
+        Console.WriteLine($"\n{BlueBerryConstants.Emojis.Alert} DAILY TOKEN QUOTA EXCEEDED {BlueBerryConstants.Emojis.Alert}");
         Console.WriteLine($"Message: {errorMessage}");
         Console.ResetColor();
 
         EnsureHistoryDirectory();
         var json = JsonSerializer.Serialize(messages);
         var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        File.WriteAllText(Path.Combine(HistoryFolder, $"bb-quota-exceeded-{timestamp}.json"), json);
-        Environment.Exit(1);
+        var filename = Path.Combine(HistoryFolder, $"{BlueBerryConstants.SnapshotPrefixes.QuotaExceeded}{timestamp}.json");
+        File.WriteAllText(filename, json);
+
+        Console.WriteLine($"Conversation saved to {filename}");
+        throw new QuotaExceededException(errorMessage);
     }
 
     /// <summary>Displays the loaded conversation in a readable format.</summary>

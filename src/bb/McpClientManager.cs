@@ -3,10 +3,10 @@ using Microsoft.Extensions.AI;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
 
-namespace BluelBerry;
+namespace BlueBerry;
 
 /// <summary>Manages MCP server configuration and tool loading.</summary>
-public class McpClientManager : IDisposable
+public class McpClientManager : IMcpClientManager
 {
     private readonly List<IMcpClient> _clients = new();
     private readonly List<McpClientTool> _tools = new();

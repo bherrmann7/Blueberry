@@ -3,30 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.Extensions.AI;
-using BluelBerry;
-
-internal static class Utils
-{
-    // Method for cleaning escaped quotes
-    public static string CleanEscapedQuotes(string input)
-    {
-        if (string.IsNullOrEmpty(input))
-            return string.Empty;
-
-        return System.Text.RegularExpressions.Regex.Replace(input, "\\\"", "\"");
-    }
-}
-
-internal static class RateLimitHelper
-{
-    // Logs a rate limit event and retry delay
-    public static void LogRateLimit(int attempt, int delaySeconds)
-    {
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine($"--- Rate limit encountered. Retrying in {delaySeconds}s... (attempt {attempt})");
-        Console.ResetColor();
-    }
-}
+using BlueBerry;
 
 internal class Program
 {
@@ -123,9 +100,19 @@ internal class Program
 
             var baseSystemPrompt = SystemPromptLoader.LoadSystemPrompt();
             List<ChatMessage> messages = new List<ChatMessage> { new ChatMessage(ChatRole.System, baseSystemPrompt) };
-            
+
             var session = new ChatSession(chatClient, options, tokenTracker, conversationManager, mcpManager);
             await session.RunAsync(messages, baseSystemPrompt);
+
+            return 0;
+        }
+        catch (QuotaExceededException ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"\nSession terminated due to quota limit. Your conversation has been saved.");
+            Console.WriteLine("Please try again later when your quota resets.");
+            Console.ResetColor();
+            return 1;
         }
         finally
         {
@@ -133,8 +120,6 @@ internal class Program
             loggerFactory.Dispose();
             tokenTracker.Dispose();
         }
-
-        return 0;
     }
 
     private static void DisplayConfiguration(AppOptions options)

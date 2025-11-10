@@ -110,6 +110,76 @@ The AI coding assistant space is crowded, so why BlueBerry?
 
 **Learning by Building**: Understanding how LLM function calling, token management, and tool integration work under the hood - not just consuming a black-box API.
 
+## How Blue Berry Works (Agent Architecture)
+
+### What is an AI Agent?
+
+An AI agent goes beyond a simple chatbot - it can **reason** about problems and **act** using tools to solve them autonomously.
+
+**Chatbot**: "I can answer questions based on what I know"
+**Agent**: "I can look things up, run commands, and complete tasks for you"
+
+### The ReAct Loop (Reason + Act)
+
+Blue Berry implements the **ReAct pattern** - the LLM alternates between thinking and acting:
+
+```
+USER: "What files are in my home directory?"
+  ↓
+REASON: LLM thinks "I need to list directory contents"
+  ↓
+ACT: Blue Berry calls list_directory("/home/user") via MCP
+  ↓
+REASON: LLM thinks "Now I have the list, I can answer"
+  ↓
+RESPOND: "Your home directory contains: file1.txt, file2.txt..."
+```
+
+### The Agent Loop in Blue Berry
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  1. User types: "Create a file hello.txt"               │
+│  2. Add to conversation history                          │
+│  3. Send history + available tools to LLM                │
+│  4. LLM responds with function call: write_file(...)     │
+│  5. Execute tool via MCP server                          │
+│  6. Add result to history, go back to step 3             │
+│  7. LLM responds with text → show to user                │
+│  8. Save conversation, repeat from step 1                │
+└──────────────────────────────────────────────────────────┘
+```
+
+**See it in action**: Watch the console output - you'll see `🔧 Tool Call` and `🔄 Tool Result` as the agent works!
+
+### The Token Burning Problem
+
+⚠️ **Blue Berry is intentionally simple but inefficient!**
+
+Every request sends the **entire conversation history** to the LLM:
+
+```
+Turn 1:  Send 100 tokens  → Response 50 tokens
+Turn 2:  Send 150 tokens  → Response 50 tokens  (includes turn 1)
+Turn 3:  Send 200 tokens  → Response 50 tokens  (includes turns 1-2)
+...
+Turn 10: Send 550 tokens  → Response 50 tokens  (includes turns 1-9)
+
+Total sent: 2,750 tokens
+Actual content: 600 tokens
+Efficiency: 22% 🔥
+```
+
+This makes the agent expensive and slow as conversations grow!
+
+**Why does Blue Berry do this?** For learning! Understanding this naive approach helps you appreciate why production agents need:
+- **Conversation Summarization**: Compress old turns into summaries
+- **Sliding Windows**: Keep only recent messages
+- **RAG (Retrieval-Augmented Generation)**: Vector databases for semantic memory
+- **Semantic Caching**: LLM providers cache repeated context
+
+**Want to learn more?** Read [`docs/agent-tutorial.md`](docs/agent-tutorial.md) for a deep dive into agent architecture!
+
 ## Architecture
 
 1. **LLM Client** → Connects to OpenAI/Cerebras/etc

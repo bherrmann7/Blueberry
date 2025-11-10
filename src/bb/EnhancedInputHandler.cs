@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace BluelBerry;
+namespace BlueBerry;
 
 /// <summary>
 /// Provides enhanced multi-line input with history and emacs-style editing.

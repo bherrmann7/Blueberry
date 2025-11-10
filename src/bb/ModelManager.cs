@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace BluelBerry;
+namespace BlueBerry;
 
 public class ModelManager
 {

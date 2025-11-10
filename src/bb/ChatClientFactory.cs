@@ -8,7 +8,7 @@ using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 
-namespace BluelBerry;
+namespace BlueBerry;
 
 /// <summary>
 /// Factory for creating configured chat clients with logging and rate limiting.

@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace BluelBerry;
+namespace BlueBerry;
 
 /// <summary>
 /// Manages MCP configuration loading and provides access to the in-memory model.

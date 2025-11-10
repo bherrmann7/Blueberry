@@ -1,4 +1,4 @@
-namespace BluelBerry;
+namespace BlueBerry;
 
 /// <summary>Loads and constructs system prompt from various sources.</summary>
 public class SystemPromptLoader
@@ -6,25 +6,8 @@ public class SystemPromptLoader
     /// <summary>Loads system prompt from file and appends current directory and project context.</summary>
     public static string LoadSystemPrompt()
     {
-        var homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        var bbDirectory = Path.Combine(homeDirectory, ".bb");
-        var systemPromptPath = Path.Combine(bbDirectory, "system-prompt.txt");
-
-        var defaultSystemPrompt = """
-You are an expert software engineer and coding assistant. When given a task:
-
-1. Always complete the full implementation yourself
-2. Write working, tested code with proper error handling
-3. Don't ask for confirmation on standard practices
-4. Only ask questions if requirements are genuinely unclear
-5. Be thorough - implement edge cases and consider performance
-6. Take initiative to suggest improvements when you see opportunities
-7. Write complete code implementations rather than partial solutions
-8. Make reasonable assumptions about requirements
-9. Test your implementations when possible
-
-You should be proactive and autonomous in solving problems. Complete tasks fully rather than handing work back to the user unless you genuinely need clarification.
-""";
+        var bbDirectory = BlueBerryConstants.Directories.Config;
+        var systemPromptPath = BlueBerryConstants.Files.SystemPrompt;
 
         string baseSystemPrompt;
         try
@@ -35,15 +18,15 @@ You should be proactive and autonomous in solving problems. Complete tasks fully
             }
             else
             {
-                baseSystemPrompt = CreateDefaultSystemPrompt(bbDirectory, systemPromptPath, defaultSystemPrompt);
+                baseSystemPrompt = CreateDefaultSystemPrompt(bbDirectory, systemPromptPath, BlueBerryConstants.DefaultSystemPrompt);
             }
         }
         catch (Exception ex)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"⚠️ Warning: Failed to read system prompt file at {systemPromptPath}. Using default prompt. Error: {ex.Message}");
+            Console.WriteLine($"{BlueBerryConstants.Emojis.Warning} Warning: Failed to read system prompt file at {systemPromptPath}. Using default prompt. Error: {ex.Message}");
             Console.ResetColor();
-            baseSystemPrompt = defaultSystemPrompt;
+            baseSystemPrompt = BlueBerryConstants.DefaultSystemPrompt;
         }
 
         return BuildFullSystemPrompt(baseSystemPrompt);
@@ -89,15 +72,15 @@ You should be proactive and autonomous in solving problems. Complete tasks fully
         baseSystemPrompt += $"\n\nCurrent working directory is {currentDirectory}\n";
 
         // Add project-specific context files
-        if (File.Exists("CLAUDE.md"))
+        if (File.Exists(BlueBerryConstants.ContextFiles.Claude))
         {
-            Console.WriteLine("  Adding CLAUDE.md to system prompt.");
-            baseSystemPrompt += File.ReadAllText("CLAUDE.md");
+            Console.WriteLine($"  Adding {BlueBerryConstants.ContextFiles.Claude} to system prompt.");
+            baseSystemPrompt += File.ReadAllText(BlueBerryConstants.ContextFiles.Claude);
         }
-        else if (File.Exists("GEMINI.md"))
+        else if (File.Exists(BlueBerryConstants.ContextFiles.Gemini))
         {
-            Console.WriteLine("  Adding GEMINI.md to system prompt.");
-            baseSystemPrompt += File.ReadAllText("GEMINI.md");
+            Console.WriteLine($"  Adding {BlueBerryConstants.ContextFiles.Gemini} to system prompt.");
+            baseSystemPrompt += File.ReadAllText(BlueBerryConstants.ContextFiles.Gemini);
         }
 
         Console.WriteLine($"  Sending system prompt of {baseSystemPrompt.Length} chars.");
