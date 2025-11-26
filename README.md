@@ -110,78 +110,13 @@ The AI coding assistant space is crowded, so why BlueBerry?
 
 **Learning by Building**: Understanding how LLM function calling, token management, and tool integration work under the hood - not just consuming a black-box API.
 
-## Architecture
 
-BlueBerry sets up a processing stack that bridges User requests to LLMs while handling tool execution via MCP:
+### Components
 
-```mermaid
-sequenceDiagram
-    box User Layer
-        participant User
-    end
-    box BlueBerry Application
-        participant BB as bb (ChatSession)
-    end
-    box LLM Integration
-        participant SDK as Microsoft.Extensions.AI<br/>+ OpenAI SDK
-        participant LLM as LLM Provider<br/>(OpenAI/Cerebras/Ollama)
-    end
-    box Tool Layer
-        participant MCP as MCP SDK<br/>+ MCP Servers
-    end
-
-    Note over User,MCP: ═══ PHASE 1: STACK SETUP ═══
-
-    BB->>SDK: Create ChatClient with FunctionInvocation wrapper
-    BB->>MCP: Initialize MCP servers from ~/.bb/mcp.json
-    MCP-->>BB: Return discovered tools list
-    BB->>BB: Load system prompt + CLAUDE.md
-
-    Note over User,MCP: ═══ PHASE 2: REQUEST/RESPONSE LOOP ═══
-
-    loop Chat Session
-        User->>BB: Enter prompt
-        BB->>SDK: GetStreamingResponseAsync(messages, tools)
-        SDK->>LLM: Stream request with tool definitions
-
-        alt LLM needs tool execution
-            LLM-->>SDK: Stream response with FunctionCallContent
-            Note over SDK,MCP: FunctionInvocation middleware intercepts
-            SDK->>MCP: Execute tool via MCP protocol
-            MCP-->>SDK: Return tool result
-            SDK->>LLM: Continue with FunctionResultContent
-            LLM-->>SDK: Stream continued response
-        end
-
-        LLM-->>SDK: Stream final text response + usage
-        SDK-->>BB: Yield streaming updates
-        BB-->>User: Display streamed response
-        BB->>BB: Track tokens, save conversation
-    end
-```
-
-### Key Components
-
-| Layer | Component | Responsibility |
-|-------|-----------|----------------|
-| **User** | Terminal/Console | Input prompts, view responses |
-| **Application** | ChatSession | REPL loop, message management, streaming display |
-| **Application** | TokenTracker | Cost tracking, context monitoring |
-| **LLM Integration** | Microsoft.Extensions.AI | Chat client abstraction with FunctionInvocation |
-| **LLM Integration** | OpenAI SDK | HTTP transport to LLM providers |
-| **Tool Layer** | McpClientManager | MCP server lifecycle, tool discovery |
-| **Tool Layer** | MCP Servers | External tools (filesystem, shell, git, etc.) |
-
-### The Magic: Automatic Tool Execution
-
-The `UseFunctionInvocation()` wrapper is the key architectural pattern:
-1. LLM responds with a tool call request (FunctionCallContent)
-2. The wrapper **automatically** routes to the matching MCP tool
-3. Tool executes and returns results
-4. Results are sent back to LLM **within the same streaming response**
-5. LLM continues generating until the final answer
-
-This creates a seamless loop where tool calls happen transparently - BlueBerry just displays what's happening while the SDK handles the orchestration.
+- **ChatSession**: Main REPL loop handling user interaction and LLM streaming
+- **TokenTracker**: Real-time cost tracking and context utilization monitoring
+- **ConversationManager**: Persistent chat history saved to `~/.bb-history/`
+- **McpClientManager**: Discovers and routes function calls to MCP tool servers
 
 ## Use Cases
 
