@@ -110,13 +110,13 @@ The AI coding assistant space is crowded, so why BlueBerry?
 
 **Learning by Building**: Understanding how LLM function calling, token management, and tool integration work under the hood - not just consuming a black-box API.
 
-## Architecture
 
-1. **LLM Client** → Connects to OpenAI/Cerebras/etc
-2. **MCP Manager** → Launches and manages configured tool servers  
-3. **Function Calling** → LLM requests tool execution via structured calls
-4. **REPL Loop** → Interactive chat with live tool integration
-5. **Analytics** → Token tracking and conversation persistence
+### Components
+
+- **ChatSession**: Main REPL loop handling user interaction and LLM streaming
+- **TokenTracker**: Real-time cost tracking and context utilization monitoring
+- **ConversationManager**: Persistent chat history saved to `~/.bb-history/`
+- **McpClientManager**: Discovers and routes function calls to MCP tool servers
 
 ## Use Cases
 
