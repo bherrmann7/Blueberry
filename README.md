@@ -110,6 +110,56 @@ The AI coding assistant space is crowded, so why BlueBerry?
 
 **Learning by Building**: Understanding how LLM function calling, token management, and tool integration work under the hood - not just consuming a black-box API.
 
+## Architecture
+
+BlueBerry sets up a processing stack that bridges User requests to LLMs while handling tool execution via MCP:
+
+```mermaid
+sequenceDiagram
+    box User Layer
+        participant User
+    end
+    box BlueBerry Application
+        participant BB as bb (ChatSession)
+    end
+    box LLM Integration
+        participant SDK as Microsoft.Extensions.AI<br/>+ OpenAI SDK
+        participant LLM as LLM Provider<br/>(OpenAI/Cerebras/Ollama)
+    end
+    box Tool Layer
+        participant MCP as MCP SDK<br/>+ MCP Servers
+    end
+
+    Note over User,MCP: ═══ PHASE 1: STACK SETUP ═══
+
+    BB->>SDK: Create ChatClient with FunctionInvocation wrapper
+    BB->>MCP: Initialize MCP servers from ~/.bb/mcp.json
+    MCP-->>BB: Return discovered tools list
+    BB->>BB: Load system prompt + CLAUDE.md
+
+    Note over User,MCP: ═══ PHASE 2: REQUEST/RESPONSE LOOP ═══
+
+    loop Chat Session
+        User->>BB: Enter prompt
+        BB->>SDK: GetStreamingResponseAsync(messages, tools)
+        SDK->>LLM: Stream request with tool definitions
+
+        alt LLM needs tool execution
+            LLM-->>SDK: Stream response with FunctionCallContent
+            Note over SDK,MCP: FunctionInvocation middleware intercepts
+            SDK->>MCP: Execute tool via MCP protocol
+            MCP-->>SDK: Return tool result
+            SDK->>LLM: Continue with FunctionResultContent
+            LLM-->>SDK: Stream continued response
+        end
+
+        LLM-->>SDK: Stream final text response + usage
+        SDK-->>BB: Yield streaming updates
+        BB-->>User: Display streamed response
+        BB->>BB: Track tokens, save conversation
+    end
+```
+
 
 ### Components
 
