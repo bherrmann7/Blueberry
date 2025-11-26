@@ -110,48 +110,6 @@ The AI coding assistant space is crowded, so why BlueBerry?
 
 **Learning by Building**: Understanding how LLM function calling, token management, and tool integration work under the hood - not just consuming a black-box API.
 
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              BlueBerry Agent                                │
-│  ┌─────────────┐  ┌─────────────┐  ┌──────────────┐  ┌─────────────────┐   │
-│  │ ChatSession │  │TokenTracker │  │ Conversation │  │ McpClientManager│   │
-│  │   (REPL)    │  │  (costs)    │  │   Manager    │  │   (tools)       │   │
-│  └─────────────┘  └─────────────┘  └──────────────┘  └─────────────────┘   │
-└─────────────────────────────────────────────────────────────────────────────┘
-        ▲                                                       │
-        │ User                                                  │ MCP Protocol
-        │ Input/Output                                          ▼
-   ┌────┴────┐                                      ┌───────────────────────┐
-   │         │                                      │     MCP Servers       │
-   │  User   │                                      │  ┌─────┐ ┌─────────┐  │
-   │  (you)  │                                      │  │Shell│ │Filesystem│ │
-   │         │                                      │  └─────┘ └─────────┘  │
-   └─────────┘                                      │  ┌──────┐ ┌────────┐  │
-                                                    │  │ Git  │ │Database│  │
-        ┌───────────────────────────────────────┐   │  └──────┘ └────────┘  │
-        │              LLM Provider             │   └───────────────────────┘
-        │  (OpenAI, Cerebras, Ollama, etc.)     │               ▲
-        └───────────────────────────────────────┘               │
-                          ▲                                     │
-                          │ API Calls                           │
-                          │ (chat completions)                  │
-                          └─────────────────────────────────────┘
-                                        │
-                                        │ Function Calls
-                                        │ (tool execution requests)
-                                        ▼
-
-Data Flow:
-──────────
-1. User types a message → ChatSession receives input
-2. ChatSession sends message to LLM → LLM processes and may request tools
-3. LLM returns function call → McpClientManager routes to appropriate MCP server
-4. MCP server executes tool → Result returned to LLM
-5. LLM generates response → Streamed back to user
-6. TokenTracker records usage → ConversationManager saves history
-```
 
 ### Components
 
